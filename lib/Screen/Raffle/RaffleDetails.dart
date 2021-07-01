@@ -30,23 +30,36 @@ class RaffleDetailsScreen extends StatefulWidget {
 }
 
 class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
-  bool expand = false;
+  bool personExpanded = false;
+  bool prizeExpanded = false;
+  bool editExpanded = false;
   bool haveData = false;
   bool isInserted = false;
+
+  TextEditingController _nameControllerEdit = new TextEditingController();
+  TextEditingController _entryControllerEdit = new TextEditingController();
+
   TextEditingController _nameController = new TextEditingController();
   TextEditingController _entryController = new TextEditingController();
   TextEditingController _phoneController = new TextEditingController();
+  TextEditingController _prizeController = new TextEditingController();
   PersonModel? personModel;
+  PrizeModel? prizeModel;
   List<String> prizeList = [];
 
-  var _formKey = GlobalKey<FormState>();
-  var _chosenValue;
+  var _formKeyPerson = GlobalKey<FormState>();
+  var _formKeyPrize = GlobalKey<FormState>();
+  var _formKeyEdit = GlobalKey<FormState>();
 
   List<DropdownMenuItem<Object?>> _dropdownTestItems = [];
-  var _selectedTest;
+  var _selectedVal;
 
   @override
   void initState() {
+    _nameControllerEdit.text = widget.obj[widget.index].eventName!;
+    _entryControllerEdit.text =
+        widget.obj[widget.index].currentEntries!.toString();
+
     _dropdownTestItems = buildDropdownTestItems();
     super.initState();
   }
@@ -72,7 +85,7 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
   onChangeDropdownTests(selectedTest) {
     print(selectedTest);
     setState(() {
-      _selectedTest = selectedTest;
+      _selectedVal = selectedTest;
     });
   }
 
@@ -82,6 +95,7 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: Text("Details"),
         centerTitle: true,
@@ -115,147 +129,177 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                       const Radius.circular(6.0),
                     ),
                   ),
-                  child: Column(
+                  child: Stack(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Flexible(
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 15),
-                                child: Text(
-                                  widget.obj[widget.index].eventName!,
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                      Positioned(
+                        top: -5,
+                        right: 5,
+                        child: Container(
+                          color: AppColor.primary,
+                          child: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  print("object");
+                                  editExpanded = !editExpanded;
+                                });
+                              },
+                              icon: Icon(
+                                Icons.edit,
+                                size: 40,
+                                color: Colors.white,
+                              )),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Flexible(
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 15),
-                                child: Text(
-                                  "Creation Date",
+                      Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(15),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Flexible(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(right: 15),
+                                    child: Text(
+                                      widget.obj[widget.index].eventName!,
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(15),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(right: 15),
+                                    child: Text(
+                                      "Creation Date",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  widget.obj[widget.index].createdDate!
+                                      .substring(0, 16),
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(15),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(right: 15),
+                                    child: Text(
+                                      "Current Entries",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  widget.obj[widget.index].currentEntries!
+                                      .toString(),
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(15),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(right: 15),
+                                    child: Text(
+                                      "Total Participants",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  widget.personList.length.toString(),
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(15),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(right: 15),
+                                    child: Text(
+                                      "Total Prize",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  widget.prizeList.length.toString(),
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
                                   ),
                                 ),
-                              ),
+                              ],
                             ),
-                            Text(
-                              widget.obj[widget.index].createdDate!
-                                  .substring(0, 16),
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Flexible(
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 15),
-                                child: Text(
-                                  "Current Entries",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ExpandedSection(
+                              child: expandedCardEntry(),
+                              expand: editExpanded,
                             ),
-                            Text(
-                              widget.obj[widget.index].currentEntries!
-                                  .toString(),
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Flexible(
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 15),
-                                child: Text(
-                                  "Total Participants",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Text(
-                              widget.personList.length.toString(),
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Flexible(
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 15),
-                                child: Text(
-                                  "Total Prize",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Text(
-                              widget.prizeList.length.toString(),
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            )
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -339,6 +383,13 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                         );
                       }),
                       Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ExpandedSection(
+                          child: expandedCardPrize(),
+                          expand: prizeExpanded,
+                        ),
+                      ),
+                      Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: TextButton(
                           style: TextButton.styleFrom(
@@ -350,16 +401,34 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                                 horizontal: 15, vertical: 8),
                           ),
                           onPressed: () async {
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //       builder: (context) => MyHomePage(
-                            //             title: 'xxx',
-                            //           )),
-                            // );
+                            if (prizeExpanded == false) {
+                              setState(() {
+                                prizeExpanded = true;
+                              });
+                            } else {
+                              if (_formKeyPrize.currentState!.validate()) {
+                                _formKeyPrize.currentState!.save();
+
+                                Services.insertSingleRafflePrize(
+                                  id: widget.obj[widget.index].id,
+                                  prize: _prizeController.text,
+                                ).then((value) {
+                                  prizeModel = new PrizeModel(
+                                    id: value,
+                                    prizeDetail: _prizeController.text,
+                                    raffleId: widget.obj[widget.index].id,
+                                  );
+                                  widget.prizeList.add(prizeModel!);
+
+                                  setState(() {
+                                    prizeExpanded = false;
+                                  });
+                                });
+                              }
+                            }
                           },
                           child: Text(
-                            'Add More',
+                            'Add Prize',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -458,6 +527,13 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                           );
                         }),
                         Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ExpandedSection(
+                            child: expandedCard(),
+                            expand: personExpanded,
+                          ),
+                        ),
+                        Padding(
                           padding: const EdgeInsets.all(10.0),
                           child: TextButton(
                             style: TextButton.styleFrom(
@@ -469,10 +545,40 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                                   horizontal: 15, vertical: 8),
                             ),
                             onPressed: () async {
-                              print("object");
-                              setState(() {
-                                expand = !expand;
-                              });
+                              if (personExpanded == false) {
+                                setState(() {
+                                  personExpanded = true;
+                                });
+                              } else {
+                                if (_formKeyPerson.currentState!.validate()) {
+                                  _formKeyPerson.currentState!.save();
+
+                                  Services.insertPerson(
+                                    name: _nameController.text,
+                                    noOfEntries: _entryController.text,
+                                    phoneNo: _phoneController.text,
+                                    prizeType: _selectedVal,
+                                    id: widget.obj[widget.index].id,
+                                  ).then((value) {
+                                    personModel = new PersonModel(
+                                      id: value,
+                                      name: _nameController.text,
+                                      noOfEntries: int.parse(
+                                        _entryController.text,
+                                      ),
+                                      phoneNo: _phoneController.text,
+                                      prizeType: _selectedVal,
+                                      raffleId: widget.obj[widget.index].id,
+                                    );
+                                    widget.personList.add(personModel!);
+
+                                    setState(() {
+                                      personExpanded = false;
+                                      isInserted = true;
+                                    });
+                                  });
+                                }
+                              }
 
                               // WidgetsBinding.instance!.addPostFrameCallback(
                               //     (_) => {
@@ -480,20 +586,13 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                               //         });
                             },
                             child: Text(
-                              'Add More',
+                              'Add Participate',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
                               ),
                             ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ExpandedSection(
-                            child: expandedCard(),
-                            expand: expand,
                           ),
                         ),
                       ],
@@ -508,11 +607,203 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
     );
   }
 
+  Widget expandedCardEntry() {
+    return Padding(
+        padding: EdgeInsets.only(right: 20, left: 20),
+        child: Form(
+          key: _formKeyEdit,
+          child: Column(
+            children: [
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 15),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: TextFormField(
+                  controller: _nameControllerEdit,
+                  keyboardType: TextInputType.emailAddress,
+                  style: TextStyle(
+                    fontStyle: FontStyle.normal,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: "Event Name",
+                    labelStyle: TextStyle(color: Colors.grey),
+                    hintText: "Enter Event Name",
+                    hintStyle: TextStyle(color: Colors.grey),
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    suffixIcon: Container(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      child: SvgPicture.asset(
+                        "assets/Icons/calendar.svg",
+                        height: 5,
+                        width: 5,
+                      ),
+                    ),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                        borderSide: BorderSide(color: AppColor.primary)),
+                    focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(25.0)),
+                        borderSide: BorderSide(color: AppColor.primary)),
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                  ),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Enter Event Name';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 15),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: TextFormField(
+                  controller: _entryControllerEdit,
+                  style: TextStyle(
+                    fontStyle: FontStyle.normal,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  keyboardType: TextInputType.numberWithOptions(
+                    decimal: false,
+                    signed: true,
+                  ),
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
+                  decoration: InputDecoration(
+                    labelText: "Current Entry",
+                    labelStyle: TextStyle(color: Colors.grey),
+                    hintText: "Enter Current Entry",
+                    hintStyle: TextStyle(color: Colors.grey),
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    suffixIcon: Container(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      child: SvgPicture.asset(
+                        "assets/Icons/countdown.svg",
+                        height: 5,
+                        width: 5,
+                      ),
+                    ),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                        borderSide: BorderSide(color: AppColor.primary)),
+                    focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(25.0)),
+                        borderSide: BorderSide(color: AppColor.primary)),
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                  ),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Enter Current Entry';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30)),
+                    primary: AppColor.secondary,
+                    backgroundColor: AppColor.primary,
+                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                  ),
+                  onPressed: () async {
+                    if (editExpanded == false) {
+                      setState(() {
+                        editExpanded = true;
+                      });
+                    } else {
+                      if (_formKeyEdit.currentState!.validate()) {
+                        _formKeyEdit.currentState!.save();
+                      }
+                    }
+                  },
+                  child: Text(
+                    'Update',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ));
+  }
+
+  Widget expandedCardPrize() {
+    return Padding(
+        padding: EdgeInsets.only(right: 20, left: 20),
+        child: Form(
+          key: _formKeyPrize,
+          child: Column(
+            children: [
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 15),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: TextFormField(
+                  controller: _prizeController,
+                  style: TextStyle(
+                    fontStyle: FontStyle.normal,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: "Prize Details",
+                    labelStyle: TextStyle(color: Colors.grey),
+                    hintText: "Enter Prize Details",
+                    hintStyle: TextStyle(color: Colors.grey),
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    suffixIcon: Container(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      child: SvgPicture.asset(
+                        "assets/Icons/trophy.svg",
+                        height: 5,
+                        width: 5,
+                      ),
+                    ),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                        borderSide: BorderSide(color: AppColor.primary)),
+                    focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(25.0)),
+                        borderSide: BorderSide(color: AppColor.primary)),
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                  ),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Enter Prize Details';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+            ],
+          ),
+        ));
+  }
+
   Widget expandedCard() {
     return Padding(
       padding: EdgeInsets.only(right: 20, left: 20),
       child: Form(
-        key: _formKey,
+        key: _formKeyPerson,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Column(
           children: [
@@ -524,7 +815,6 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
               ),
               child: TextFormField(
                 controller: _nameController,
-                keyboardType: TextInputType.emailAddress,
                 style: TextStyle(
                   fontStyle: FontStyle.normal,
                   fontWeight: FontWeight.normal,
@@ -621,6 +911,7 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
               ),
               child: TextFormField(
                 controller: _phoneController,
+                keyboardType: TextInputType.phone,
                 style: TextStyle(
                   fontStyle: FontStyle.normal,
                   fontWeight: FontWeight.normal,
@@ -677,58 +968,10 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                 boxPadding: EdgeInsets.fromLTRB(13, 12, 0, 12),
                 boxWidth: 330,
                 boxHeight: 45,
-                hint: Text('choose item'),
-                value: _selectedTest,
+                hint: Text('choose Prize'),
+                value: _selectedVal,
                 items: _dropdownTestItems,
                 onChanged: onChangeDropdownTests,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 20,
-                bottom: 20,
-              ),
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30)),
-                  primary: AppColor.secondary,
-                  backgroundColor: AppColor.primary,
-                  padding: EdgeInsets.symmetric(horizontal: 80, vertical: 12),
-                ),
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    _formKey.currentState!.save();
-
-                    Services.insertPerson(
-                      name: _nameController.text,
-                      noOfEntries: _entryController.text,
-                      phoneNo: _phoneController.text,
-                      prizeType: _chosenValue,
-                      id: widget.obj[widget.index].id,
-                    ).then((value) {
-                      setState(() {
-                        isInserted = true;
-                        personModel = new PersonModel(
-                            id: value,
-                            name: _nameController.text,
-                            noOfEntries: int.parse(_entryController.text),
-                            phoneNo: _phoneController.text,
-                            prizeType: _phoneController.text);
-                        widget.personList.add(personModel!);
-                        expand = false;
-                      });
-                    });
-                  } //Navigator.pop(context);
-                },
-                child: Text(
-                  'Add Participate',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
               ),
             ),
           ],

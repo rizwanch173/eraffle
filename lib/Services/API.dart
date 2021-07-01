@@ -74,6 +74,17 @@ class Services {
     return res;
   }
 
+  static Future<int> insertSingleRafflePrize({id, prize}) async {
+    final db = DataBaseHelper();
+    _db = await db.init();
+    var res;
+
+    res = await _db!.rawInsert(
+        "INSERT INTO Prize(prize_detail,raffle_id)VALUES('$prize','$id');");
+
+    return res;
+  }
+
   static Future<List<PrizeList>> getRafflePrizelist({id}) async {
     final db = DataBaseHelper();
     _db = await db.init();
