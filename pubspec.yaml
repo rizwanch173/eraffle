@@ -19,6 +19,7 @@ dev_dependencies:
   flutter_svg: ^0.22.0
   path_provider: ^2.0.2
   webview_flutter: ^2.0.9
+  dropdown_below: ^0.0.8
 
 flutter:
   uses-material-design: true

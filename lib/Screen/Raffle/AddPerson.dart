@@ -3,6 +3,7 @@ import 'package:eraffle/Screen/Raffle/RaffleScreen.dart';
 import 'package:eraffle/Services/API.dart';
 import 'package:eraffle/theme/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class AddPersonScreen extends StatefulWidget {
@@ -22,20 +23,6 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
   List<String> prizeList = [];
 
   var _formKey = GlobalKey<FormState>();
-
-  void addPrize({String? prize}) {
-    if (!prizeList.contains(prize))
-      setState(() {
-        prizeList.add(prize!);
-      });
-  }
-
-  void removePrize({String? prize}) {
-    if (prizeList.contains(prize))
-      setState(() {
-        prizeList.remove(prize);
-      });
-  }
 
   bool haveData = false;
   double btnWidth = 0.0;
@@ -87,7 +74,6 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                   ),
                   child: TextFormField(
                     controller: _nameController,
-                    readOnly: isInserted,
                     keyboardType: TextInputType.emailAddress,
                     style: TextStyle(
                       fontStyle: FontStyle.normal,
@@ -132,11 +118,17 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                   ),
                   child: TextFormField(
                     controller: _entryController,
-                    readOnly: isInserted,
                     style: TextStyle(
                       fontStyle: FontStyle.normal,
                       fontWeight: FontWeight.normal,
                     ),
+                    keyboardType: TextInputType.numberWithOptions(
+                      decimal: false,
+                      signed: true,
+                    ),
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
                     decoration: InputDecoration(
                       labelText: "No of Entry",
                       labelStyle: TextStyle(color: Colors.grey),
@@ -164,7 +156,7 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                       if (value!.isEmpty) {
                         return 'Enter No of Entry';
                       } else if (int.parse(value) > widget.totalEntries) {
-                        return 'Must be less then total Entries';
+                        return 'Must be less then Total Raffle Entries (${widget.totalEntries})';
                       }
                       return null;
                     },
@@ -178,7 +170,6 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                   ),
                   child: TextFormField(
                     controller: _phoneController,
-                    readOnly: isInserted,
                     style: TextStyle(
                       fontStyle: FontStyle.normal,
                       fontWeight: FontWeight.normal,
@@ -323,7 +314,7 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                         Services.insertPerson(
                           name: _nameController.text,
                           noOfEntries: _entryController.text,
-                          phoneNo: _phoneController,
+                          phoneNo: _phoneController.text,
                           prizeType: _chosenValue,
                           id: widget.id,
                         ).then((value) {

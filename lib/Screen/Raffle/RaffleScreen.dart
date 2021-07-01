@@ -1,3 +1,5 @@
+import 'package:eraffle/Models/person_model.dart';
+import 'package:eraffle/Models/prize_model.dart';
 import 'package:eraffle/Screen/Raffle/RaffleCard.dart';
 import 'package:eraffle/Services/API.dart';
 import 'package:eraffle/Models/RaffleModel.dart';
@@ -17,6 +19,9 @@ class RaffleScreen extends StatefulWidget {
 class _HomeScreenState extends State<RaffleScreen> {
   @override
   List<RaffleModel> obj = [];
+  List prizes = [];
+  List persons = [];
+
   bool isData = false;
 
   @override
@@ -24,7 +29,9 @@ class _HomeScreenState extends State<RaffleScreen> {
     super.initState();
     Services.getActiveRaffle().then((value) {
       setState(() {
-        obj = value;
+        obj = value[0];
+        prizes = value[1];
+        persons = value[2];
         isData = true;
       });
     });
@@ -77,6 +84,8 @@ class _HomeScreenState extends State<RaffleScreen> {
                       return RaffleCard(
                         index: index,
                         obj: obj,
+                        prizes: prizes,
+                        persons: persons,
                       );
                     }),
                   ],
