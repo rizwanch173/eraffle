@@ -2,13 +2,12 @@ import 'package:eraffle/Models/PrizeList.dart';
 import 'package:eraffle/Models/RaffleModel.dart';
 import 'package:eraffle/Models/person_model.dart';
 import 'package:eraffle/Models/prize_model.dart';
-import 'package:eraffle/Screen/Raffle/RaffleScreen.dart';
 import 'package:eraffle/Services/API.dart';
 import 'package:eraffle/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:dropdown_below/dropdown_below.dart';
+import 'package:group_button/group_button.dart';
 
 class RaffleDetailsScreen extends StatefulWidget {
   const RaffleDetailsScreen({
@@ -46,7 +45,8 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
   PersonModel? personModel;
   PrizeModel? prizeModel;
   List<String> prizeList = [];
-
+  List<String> selectedList = [];
+  List<String> prizes = [];
   var _formKeyPerson = GlobalKey<FormState>();
   var _formKeyPrize = GlobalKey<FormState>();
   var _formKeyEdit = GlobalKey<FormState>();
@@ -54,32 +54,37 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
   List<DropdownMenuItem<Object?>> _dropdownTestItems = [];
   var _selectedVal;
 
+  void addPrize({String? prize}) {
+    if (!selectedList.contains(prize))
+      setState(() {
+        selectedList.add(prize!);
+      });
+  }
+
+  void removePrize({String? prize}) {
+    if (selectedList.contains(prize))
+      setState(() {
+        selectedList.remove(prize);
+      });
+  }
+
   @override
   void initState() {
     _nameControllerEdit.text = widget.obj[widget.index].eventName!;
     _entryControllerEdit.text =
         widget.obj[widget.index].currentEntries!.toString();
 
-    _dropdownTestItems = buildDropdownTestItems();
+    for (var prize in widget.prizeList) {
+      prizes.add(prize.prizeDetail!);
+    }
+    selectedList.add(prizes[0]);
+
     super.initState();
   }
 
   @override
   void dispose() {
     super.dispose();
-  }
-
-  List<DropdownMenuItem<Object?>> buildDropdownTestItems() {
-    List<DropdownMenuItem<Object?>> items = [];
-    for (var prize in widget.prizeList) {
-      items.add(
-        DropdownMenuItem(
-          value: prize.prizeDetail,
-          child: Text(prize.prizeDetail!),
-        ),
-      );
-    }
-    return items;
   }
 
   onChangeDropdownTests(selectedTest) {
@@ -135,7 +140,12 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                         top: -5,
                         right: 5,
                         child: Container(
-                          color: AppColor.primary,
+                          decoration: BoxDecoration(
+                            color: AppColor.primary,
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(15),
+                            ),
+                          ),
                           child: IconButton(
                               onPressed: () {
                                 setState(() {
@@ -145,7 +155,7 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                               },
                               icon: Icon(
                                 Icons.edit,
-                                size: 40,
+                                size: 30,
                                 color: Colors.white,
                               )),
                         ),
@@ -195,6 +205,36 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                                 Text(
                                   widget.obj[widget.index].createdDate!
                                       .substring(0, 16),
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(15),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(right: 15),
+                                    child: Text(
+                                      "Initial Entries",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  widget.obj[widget.index].initialEntries!
+                                      .toString(),
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
@@ -419,6 +459,7 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                                     raffleId: widget.obj[widget.index].id,
                                   );
                                   widget.prizeList.add(prizeModel!);
+                                  prizes.add(_prizeController.text);
 
                                   setState(() {
                                     prizeExpanded = false;
@@ -484,7 +525,6 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                             child: Card(
                               elevation: 1.0,
                               child: Container(
-                                height: 50,
                                 decoration: new BoxDecoration(
                                   borderRadius: new BorderRadius.all(
                                     const Radius.circular(6.0),
@@ -492,33 +532,135 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                                 ),
                                 child: Padding(
                                   padding: const EdgeInsets.all(15),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                  child: Column(
                                     children: [
-                                      Flexible(
-                                        child: Padding(
-                                          padding:
-                                              const EdgeInsets.only(right: 15),
-                                          child: Text(
-                                            (index + 1).toString(),
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 15),
+                                              child: Text(
+                                                "Name",
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
                                             ),
-                                          ),
+                                            Flexible(
+                                              child: Text(
+                                                widget.personList[index].name
+                                                    .toString(),
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                            )
+                                          ],
                                         ),
                                       ),
-                                      Text(
-                                        widget.personList[index].name
-                                            .toString(),
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 15),
+                                              child: Text(
+                                                "Initial Entries",
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                            ),
+                                            Text(
+                                              widget.personList[index]
+                                                  .initialEntries
+                                                  .toString(),
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            )
+                                          ],
                                         ),
-                                      )
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 15),
+                                              child: Text(
+                                                "Current Entries",
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                            ),
+                                            Text(
+                                              widget
+                                                  .personList[index].noOfEntries
+                                                  .toString(),
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 15),
+                                              child: Text(
+                                                "Prize Enrolled",
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                            ),
+                                            Flexible(
+                                              child: Text(
+                                                widget
+                                                    .personList[index].prizeType
+                                                    .toString(),
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -557,7 +699,7 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                                     name: _nameController.text,
                                     noOfEntries: _entryController.text,
                                     phoneNo: _phoneController.text,
-                                    prizeType: _selectedVal,
+                                    prizeList: selectedList,
                                     id: widget.obj[widget.index].id,
                                   ).then((value) {
                                     personModel = new PersonModel(
@@ -567,12 +709,19 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                                         _entryController.text,
                                       ),
                                       phoneNo: _phoneController.text,
-                                      prizeType: _selectedVal,
+                                      prizeType: selectedList.join(","),
                                       raffleId: widget.obj[widget.index].id,
+                                      initialEntries: int.parse(
+                                        _entryController.text,
+                                      ),
                                     );
                                     widget.personList.add(personModel!);
 
                                     setState(() {
+                                      widget.obj[widget.index].currentEntries =
+                                          widget.obj[widget.index]
+                                                  .currentEntries! -
+                                              int.parse(_entryController.text);
                                       personExpanded = false;
                                       isInserted = true;
                                     });
@@ -726,6 +875,20 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                     } else {
                       if (_formKeyEdit.currentState!.validate()) {
                         _formKeyEdit.currentState!.save();
+
+                        Services.updateRaffle(
+                                id: widget.obj[widget.index].id,
+                                name: _nameControllerEdit.text,
+                                entries: int.parse(_entryControllerEdit.text))
+                            .then((value) {
+                          widget.obj[widget.index].eventName =
+                              _nameControllerEdit.text;
+                          widget.obj[widget.index].currentEntries =
+                              int.parse(_entryControllerEdit.text);
+                          setState(() {
+                            editExpanded = false;
+                          });
+                        });
                       }
                     }
                   },
@@ -947,33 +1110,49 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                 },
               ),
             ),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              width: MediaQuery.of(context).size.width - 80,
-              child: DropdownBelow(
-                icon: Icon(Icons.arrow_drop_down),
-                isDense: true,
-                itemWidth: 300,
-                itemTextstyle: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.black),
-                boxTextstyle: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    color: Color(0XFFbbbbbb)),
-                boxPadding: EdgeInsets.fromLTRB(13, 12, 0, 12),
-                boxWidth: 330,
-                boxHeight: 45,
-                hint: Text('choose Prize'),
-                value: _selectedVal,
-                items: _dropdownTestItems,
-                onChanged: onChangeDropdownTests,
-              ),
-            ),
+            Row(
+              children: [
+                Expanded(
+                  child: GroupButton(
+                    spacing: 5,
+                    selectedButtons: [0],
+                    isRadio: false,
+                    direction: Axis.horizontal,
+                    onSelected: (index, isSelected) {
+                      if (isSelected) {
+                        addPrize(prize: prizes[index]);
+                      } else {
+                        removePrize(prize: prizes[index]);
+                      }
+                      print(selectedList);
+                      setState(() {});
+                    },
+                    buttons: prizes,
+                    selectedTextStyle: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: Colors.red,
+                    ),
+                    unselectedTextStyle: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                    selectedColor: Colors.white,
+                    unselectedColor: Colors.grey[300]!,
+                    selectedBorderColor: Colors.red,
+                    unselectedBorderColor: Colors.grey[500]!,
+                    borderRadius: BorderRadius.circular(5.0),
+                    selectedShadow: <BoxShadow>[
+                      BoxShadow(color: Colors.transparent)
+                    ],
+                    unselectedShadow: <BoxShadow>[
+                      BoxShadow(color: Colors.transparent)
+                    ],
+                  ),
+                ),
+              ],
+            )
           ],
         ),
       ),

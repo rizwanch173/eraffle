@@ -41,7 +41,7 @@ class _HomeScreenState extends State<RaffleScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Raffle"),
+        title: Text("Active Raffle"),
         centerTitle: true,
         backgroundColor: Theme.of(context).primaryColor,
       ),

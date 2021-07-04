@@ -20,6 +20,8 @@ dev_dependencies:
   path_provider: ^2.0.2
   webview_flutter: ^2.0.9
   dropdown_below: ^0.0.8
+  flutter_fortune_wheel: ^1.0.1
+  group_button: ^2.3.0
 
 flutter:
   uses-material-design: true

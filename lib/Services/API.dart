@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:eraffle/Models/PrizeList.dart';
 import 'package:eraffle/Models/RaffleModel.dart';
 import 'package:eraffle/Models/person_model.dart';
@@ -19,7 +17,7 @@ class Services {
     List<PrizeModel> prizeList = [];
     List<PersonModel> personList = [];
 
-    var res = await _db!.rawQuery("Select * from Raffle ");
+    var res = await _db!.rawQuery("Select * from Raffle Where status=0");
 
     obj =
         res.isNotEmpty ? res.map((c) => RaffleModel.fromJson(c)).toList() : [];
@@ -49,17 +47,24 @@ class Services {
     _db = await db.init();
     DateTime now = DateTime.now();
     var res = await _db!.rawInsert(
-        "INSERT INTO Raffle(event_name,created_date,current_entries,status)VALUES('$name','$now',$entries,0);");
+        "INSERT INTO Raffle(event_name,created_date,current_entries,initial_entries,status)VALUES('$name','$now','$entries','$entries',0);");
     return res;
   }
 
   static Future<int> insertPerson(
-      {name, id, noOfEntries, prizeType, phoneNo}) async {
+      {name, id, noOfEntries, prizeList, phoneNo}) async {
     final db = DataBaseHelper();
     _db = await db.init();
     DateTime now = DateTime.now();
+
+    var list = prizeList.join(",");
+    print(list);
+
     var res = await _db!.rawInsert(
-        "INSERT INTO Particepent(name,no_of_entries,phone_no,prize_type,raffle_id)VALUES('$name','$noOfEntries','$phoneNo','$prizeType', '$id');");
+        "INSERT INTO Particepent(name,no_of_entries,initial_entries,phone_no,prize_type,raffle_id)VALUES('$name','$noOfEntries' ,'$noOfEntries' , '$phoneNo','$list', '$id');");
+
+    var update = await _db!.rawUpdate(
+        "update Raffle set current_entries=current_entries-'$noOfEntries' where id='$id'");
     return res;
   }
 
@@ -93,5 +98,14 @@ class Services {
         .rawQuery("Select id,prize_detail from Prize where raffle_id='$id'");
     obj = res.isNotEmpty ? res.map((c) => PrizeList.fromJson(c)).toList() : [];
     return obj;
+  }
+
+  static Future<int> updateRaffle({id, entries, name}) async {
+    final db = DataBaseHelper();
+    _db = await db.init();
+    DateTime now = DateTime.now();
+    var res = await _db!.rawInsert(
+        "UPDATE Raffle SET  event_name = '$name', current_entries = '$entries' WHERE id = '$id' ;");
+    return res;
   }
 }

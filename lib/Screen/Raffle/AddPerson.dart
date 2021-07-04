@@ -5,12 +5,14 @@ import 'package:eraffle/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:group_button/group_button.dart';
 
 class AddPersonScreen extends StatefulWidget {
-  const AddPersonScreen({Key? key, this.id, this.totalEntries})
+  AddPersonScreen({Key? key, this.id, required this.totalEntries})
       : super(key: key);
   final id;
-  final totalEntries;
+  int totalEntries;
+
   @override
   _AddPersonScreenState createState() => _AddPersonScreenState();
 }
@@ -20,30 +22,43 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
   TextEditingController _nameController = new TextEditingController();
   TextEditingController _entryController = new TextEditingController();
   TextEditingController _phoneController = new TextEditingController();
-  List<String> prizeList = [];
+
+  List<String> selectedList = [];
 
   var _formKey = GlobalKey<FormState>();
-
+  List<String> prizes = [];
   bool haveData = false;
   double btnWidth = 0.0;
   double btnHeight = 0.0;
   bool isInserted = false;
   var _chosenValue;
 
+  void addPrize({String? prize}) {
+    if (!selectedList.contains(prize))
+      setState(() {
+        selectedList.add(prize!);
+      });
+  }
+
+  void removePrize({String? prize}) {
+    if (selectedList.contains(prize))
+      setState(() {
+        selectedList.remove(prize);
+      });
+  }
+
   List<PrizeList> obj = [];
-  PrizeList fObj = new PrizeList(id: 0, prizeDetail: "Choose Prize");
-  PrizeList lObj = new PrizeList(id: -1, prizeDetail: "For All");
+
   @override
   void initState() {
     Services.getRafflePrizelist(id: widget.id).then((value) {
       setState(() {
         haveData = true;
         obj = value;
-        obj.insert(0, fObj);
-        obj.add(lObj);
-        print(value.runtimeType);
-
-        _chosenValue = 0;
+        for (var prize in obj) {
+          prizes.add(prize.prizeDetail!);
+        }
+        selectedList.add(prizes[0]);
       });
     });
     super.initState();
@@ -208,62 +223,41 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                 haveData
                     ? Row(
                         children: [
-                          Container(
-                            width: MediaQuery.of(context).size.width - 40,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(30.0),
-                              border: Border.all(
-                                  color: Colors.grey,
-                                  style: BorderStyle.solid,
-                                  width: 0.70),
+                          GroupButton(
+                            spacing: 5,
+                            selectedButtons: [0],
+                            isRadio: false,
+                            direction: Axis.horizontal,
+                            onSelected: (index, isSelected) {
+                              if (isSelected) {
+                                addPrize(prize: prizes[index]);
+                              } else {
+                                removePrize(prize: prizes[index]);
+                              }
+                              setState(() {});
+                            },
+                            buttons: prizes,
+                            selectedTextStyle: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              color: Colors.red,
                             ),
-                            child: DropdownButtonFormField(
-                              isExpanded: true,
-                              validator: (value) {
-                                if (value == 0) {
-                                  return 'Choose Prize';
-                                }
-                              },
-                              value: _chosenValue,
-                              icon: Padding(
-                                padding: const EdgeInsets.only(right: 10.0),
-                                child: Icon(
-                                  Icons.arrow_drop_down,
-                                  color: AppColor.primary,
-                                  size: 30,
-                                ),
-                              ),
-                              decoration: InputDecoration(
-                                  enabledBorder: UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.white))),
-                              style: TextStyle(color: Colors.black),
-                              items: obj.map((item) {
-                                return new DropdownMenuItem(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 15.0),
-                                    child: new Text(item.prizeDetail!),
-                                  ),
-                                  value: item.id,
-                                );
-                              }).toList(),
-                              hint: Padding(
-                                padding: const EdgeInsets.all(15),
-                                child: Text(
-                                  "Choose Prize",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                              ),
-                              onChanged: (value) {
-                                setState(() {
-                                  print(value);
-                                  _chosenValue = value;
-                                });
-                              },
+                            unselectedTextStyle: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              color: Colors.grey[600],
                             ),
+                            selectedColor: Colors.white,
+                            unselectedColor: Colors.grey[300]!,
+                            selectedBorderColor: Colors.red,
+                            unselectedBorderColor: Colors.grey[500]!,
+                            borderRadius: BorderRadius.circular(5.0),
+                            selectedShadow: <BoxShadow>[
+                              BoxShadow(color: Colors.transparent)
+                            ],
+                            unselectedShadow: <BoxShadow>[
+                              BoxShadow(color: Colors.transparent)
+                            ],
                           ),
                         ],
                       )
@@ -315,11 +309,13 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                           name: _nameController.text,
                           noOfEntries: _entryController.text,
                           phoneNo: _phoneController.text,
-                          prizeType: _chosenValue,
+                          prizeList: selectedList,
                           id: widget.id,
                         ).then((value) {
                           setState(() {
                             isInserted = true;
+                            widget.totalEntries -=
+                                int.parse(_entryController.text);
                             _entryController.clear();
                             _nameController.clear();
                             _phoneController.clear();
