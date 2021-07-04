@@ -105,7 +105,25 @@ class Services {
     _db = await db.init();
     DateTime now = DateTime.now();
     var res = await _db!.rawInsert(
-        "UPDATE Raffle SET  event_name = '$name', current_entries = '$entries' WHERE id = '$id' ;");
+        "UPDATE Raffle SET  event_name = '$name', current_entries =current_entries+ '$entries', initial_entries=initial_entries+'$entries' WHERE id = '$id' ;");
+    return res;
+  }
+
+  static Future<int> reducePersonEntries({id}) async {
+    final db = DataBaseHelper();
+    _db = await db.init();
+    DateTime now = DateTime.now();
+    var res = await _db!.rawInsert(
+        "UPDATE Particepent SET   no_of_entries =no_of_entries - 1 WHERE id = '$id' ;");
+    return res;
+  }
+
+  static Future<int> setPersonEntriesZero({id}) async {
+    final db = DataBaseHelper();
+    _db = await db.init();
+    DateTime now = DateTime.now();
+    var res = await _db!.rawInsert(
+        "UPDATE Particepent SET   no_of_entries = 0 WHERE id = '$id' ;");
     return res;
   }
 }

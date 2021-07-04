@@ -71,8 +71,6 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
   @override
   void initState() {
     _nameControllerEdit.text = widget.obj[widget.index].eventName!;
-    _entryControllerEdit.text =
-        widget.obj[widget.index].currentEntries!.toString();
 
     for (var prize in widget.prizeList) {
       prizes.add(prize.prizeDetail!);
@@ -223,7 +221,7 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                                   child: Padding(
                                     padding: const EdgeInsets.only(right: 15),
                                     child: Text(
-                                      "Initial Entries",
+                                      "Current Entries",
                                       style: TextStyle(
                                         color: Colors.black,
                                         fontWeight: FontWeight.bold,
@@ -253,7 +251,7 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                                   child: Padding(
                                     padding: const EdgeInsets.only(right: 15),
                                     child: Text(
-                                      "Current Entries",
+                                      "Available Entries",
                                       style: TextStyle(
                                         color: Colors.black,
                                         fontWeight: FontWeight.bold,
@@ -827,9 +825,9 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                     FilteringTextInputFormatter.digitsOnly
                   ],
                   decoration: InputDecoration(
-                    labelText: "Current Entry",
+                    labelText: "Initial Entry",
                     labelStyle: TextStyle(color: Colors.grey),
-                    hintText: "Enter Current Entry",
+                    hintText: "Entries you want to add",
                     hintStyle: TextStyle(color: Colors.grey),
                     floatingLabelBehavior: FloatingLabelBehavior.always,
                     suffixIcon: Container(
@@ -884,7 +882,11 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                           widget.obj[widget.index].eventName =
                               _nameControllerEdit.text;
                           widget.obj[widget.index].currentEntries =
-                              int.parse(_entryControllerEdit.text);
+                              widget.obj[widget.index].currentEntries! +
+                                  int.parse(_entryControllerEdit.text);
+                          widget.obj[widget.index].initialEntries =
+                              widget.obj[widget.index].initialEntries! +
+                                  int.parse(_entryControllerEdit.text);
                           setState(() {
                             editExpanded = false;
                           });

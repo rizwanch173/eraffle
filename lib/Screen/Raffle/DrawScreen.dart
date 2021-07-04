@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:eraffle/Models/RaffleModel.dart';
 import 'package:eraffle/Models/person_model.dart';
 import 'package:eraffle/Models/prize_model.dart';
+import 'package:eraffle/Services/API.dart';
 import 'package:eraffle/theme/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +37,7 @@ class _DrawScreenState extends State<DrawScreen> {
   List<String> Prizes = [];
   var prizeDetail;
   bool isNullPerson = false;
+  String SingleWinner = "";
 
   List<int> testlist = [];
   @override
@@ -47,8 +49,6 @@ class _DrawScreenState extends State<DrawScreen> {
   @override
   void initState() {
     // TODO: implement initState
-
-    print(testlist);
 
     for (var prize in widget.prizeList) {
       Prizes.add(prize.prizeDetail!);
@@ -93,9 +93,40 @@ class _DrawScreenState extends State<DrawScreen> {
                 child: GestureDetector(
                   onTap: () {
                     setState(() {
-                      selectedPerson = Fortune.randomItem(testlist);
-                      print(selectedPerson);
-                      selected.add(selectedPerson);
+                      if (testlist.length == 0) {
+                        final snackBar = SnackBar(
+                          content: Text(
+                            'All Participant have Zero Entries',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          backgroundColor: AppColor.primary,
+                          action: SnackBarAction(
+                            label: 'ok',
+                            textColor: Colors.white,
+                            onPressed: () {
+                              // Some code to undo the change.
+                            },
+                          ),
+                        );
+
+                        // Find the ScaffoldMessenger in the widget tree
+                        // and use it to show a SnackBar.
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      } else {
+                        selectedPerson = Fortune.randomItem(testlist);
+
+                        print(selectedPerson);
+
+                        widget.personList[selectedPerson].noOfEntries =
+                            widget.personList[selectedPerson].noOfEntries! - 1;
+
+                        selected.add(selectedPerson);
+                        Services.reducePersonEntries(
+                            id: widget.personList[selectedPerson].id);
+                      }
                     });
                   },
                   child: Padding(
@@ -131,7 +162,7 @@ class _DrawScreenState extends State<DrawScreen> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(8),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -140,6 +171,36 @@ class _DrawScreenState extends State<DrawScreen> {
                                   padding: const EdgeInsets.only(right: 15),
                                   child: Text(
                                     "Current Entries",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                widget.obj[widget.index].initialEntries!
+                                    .toString(),
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Flexible(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 15),
+                                  child: Text(
+                                    "Available Entries",
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
@@ -210,6 +271,7 @@ class _DrawScreenState extends State<DrawScreen> {
                             if (personList.length == 0) {
                               setState(() {
                                 isNullPerson = true;
+                                SingleWinner = "";
                                 personList = List.from(perviousList);
                                 print(perviousList.length);
                                 print(personList.length);
@@ -239,9 +301,9 @@ class _DrawScreenState extends State<DrawScreen> {
                             } else {
                               if (personList.length < 2) {
                                 setState(() {
-                                  isNullPerson = false;
-                                  spinCount = 2;
-                                  selectedPerson = 0;
+                                  isNullPerson = true;
+                                  SingleWinner = personList[0].name!;
+
                                   personList = List.from(perviousList);
                                   print(perviousList.length);
                                 });
@@ -299,7 +361,31 @@ class _DrawScreenState extends State<DrawScreen> {
                                   },
                                   items: [
                                     for (var it in personList)
-                                      FortuneItem(child: Text(it.name!)),
+                                      FortuneItem(
+                                        child: Row(
+                                          children: [
+                                            Flexible(
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 60),
+                                                child: Text(
+                                                  it.name!,
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 20),
+                                              child: Text(
+                                                  it.noOfEntries!.toString()),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                   ],
                                 ),
                               )
@@ -387,24 +473,160 @@ class _DrawScreenState extends State<DrawScreen> {
                                             child: Text(
                                               "Prize",
                                               style: TextStyle(
-                                                color: Colors.black,
+                                                color: AppColor.primary,
                                                 fontWeight: FontWeight.bold,
-                                                fontSize: 16,
+                                                fontSize: 20,
                                               ),
                                             ),
                                           ),
                                         ),
-                                        Text(
-                                          prizeDetail,
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(
+                                            prizeDetail,
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
                                           ),
                                         )
                                       ],
                                     ),
-                                  )
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Flexible(
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                right: 15),
+                                            child: Text(
+                                              "Initial Entries",
+                                              style: TextStyle(
+                                                color: AppColor.primary,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 20,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(
+                                            personList[selectedPerson]
+                                                .initialEntries!
+                                                .toString(),
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Flexible(
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                right: 15),
+                                            child: Text(
+                                              "Current Entries",
+                                              style: TextStyle(
+                                                color: AppColor.primary,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 20,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(
+                                            personList[selectedPerson]
+                                                .noOfEntries!
+                                                .toString(),
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    constraints: BoxConstraints(
+                                        maxWidth: 250.0, minHeight: 50.0),
+                                    margin: EdgeInsets.all(10),
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        primary: AppColor.primary,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          widget.personList[selectedPerson]
+                                              .noOfEntries = 0;
+                                        });
+                                        Services.setPersonEntriesZero(
+                                            id: widget
+                                                .personList[selectedPerson].id);
+                                        final snackBar = SnackBar(
+                                          content: Text(
+                                            'Entries has been Set to Zero',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          backgroundColor: AppColor.primary,
+                                          action: SnackBarAction(
+                                            label: 'ok',
+                                            textColor: Colors.white,
+                                            onPressed: () {
+                                              // Some code to undo the change.
+                                            },
+                                          ),
+                                        );
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(snackBar);
+                                      },
+                                      child: Padding(
+                                        padding: EdgeInsets.all(0),
+                                        child: Container(
+                                          alignment: Alignment.center,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: <Widget>[
+                                              Text(
+                                                'Set Entries Zero',
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              Icon(
+                                                Icons.arrow_forward,
+                                                color: Colors.white,
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ],
@@ -433,14 +655,25 @@ class _DrawScreenState extends State<DrawScreen> {
                             Container(
                               child: Padding(
                                 padding: const EdgeInsets.all(20.0),
-                                child: Text(
-                                  "This Prize have no Person Enrolled !",
-                                  style: TextStyle(
-                                    color: AppColor.primary,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                  ),
-                                ),
+                                child: SingleWinner == ""
+                                    ? Text(
+                                        "This Prize have no Person Enrolled !",
+                                        style: TextStyle(
+                                          color: AppColor.primary,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20,
+                                        ),
+                                      )
+                                    : Text(
+                                        "This Prize have only " +
+                                            SingleWinner +
+                                            " Enrolled !",
+                                        style: TextStyle(
+                                          color: AppColor.primary,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20,
+                                        ),
+                                      ),
                               ),
                               height: 200,
                             ),
