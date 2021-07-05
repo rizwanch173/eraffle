@@ -27,7 +27,7 @@ class _HomeScreenState extends State<RaffleScreen> {
   @override
   void initState() {
     super.initState();
-    Services.getActiveRaffle().then((value) {
+    Services.getRaffles(which: 0).then((value) {
       setState(() {
         obj = value[0];
         prizes = value[1];
@@ -42,6 +42,7 @@ class _HomeScreenState extends State<RaffleScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Active Raffle"),
+        automaticallyImplyLeading: false,
         centerTitle: true,
         backgroundColor: Theme.of(context).primaryColor,
       ),
@@ -54,19 +55,15 @@ class _HomeScreenState extends State<RaffleScreen> {
                     Container(
                       width: fullWidth(context),
                       margin: EdgeInsets.symmetric(vertical: 35),
-                      child: FlatButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30)),
-                        color: AppColor.primary,
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => CreateRaffleScreen()),
-                          );
-                        },
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30)),
+                          primary: AppColor.primary,
+                          backgroundColor: AppColor.secondary,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 12),
+                        ),
                         child: Text(
                           'Create Raffle',
                           style: TextStyle(
@@ -75,6 +72,13 @@ class _HomeScreenState extends State<RaffleScreen> {
                             fontSize: 16,
                           ),
                         ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => CreateRaffleScreen()),
+                          );
+                        },
                       ),
                     ),
                     SizedBox(
@@ -90,9 +94,15 @@ class _HomeScreenState extends State<RaffleScreen> {
                     }),
                   ],
                 )
-              : new CupertinoActivityIndicator(
-                  animating: true,
-                  radius: 20,
+              : Center(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                        top: MediaQuery.of(context).size.height / 2 - 100),
+                    child: new CupertinoActivityIndicator(
+                      animating: true,
+                      radius: 20,
+                    ),
+                  ),
                 ),
         ),
       ),

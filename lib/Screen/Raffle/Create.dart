@@ -1,4 +1,5 @@
 import 'package:eraffle/Services/API.dart';
+import 'package:eraffle/Tabs.dart';
 import 'package:eraffle/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -169,7 +170,9 @@ class _CreateRaffleScreenState extends State<CreateRaffleScreen> {
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        primary: AppColor.primary,
+                        primary: AppColor.secondary,
+                        onSurface: AppColor.primary,
+                        shadowColor: AppColor.primary,
                         shape: CircleBorder(),
                         padding: EdgeInsets.all(10),
                       ),
@@ -182,7 +185,7 @@ class _CreateRaffleScreenState extends State<CreateRaffleScreen> {
                     child: Container(
                       height: 40,
                       decoration: BoxDecoration(
-                        color: Colors.grey,
+                        color: AppColor.primary,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Row(
@@ -206,7 +209,7 @@ class _CreateRaffleScreenState extends State<CreateRaffleScreen> {
                               },
                               icon: Icon(
                                 Icons.cancel,
-                                color: Colors.red,
+                                color: AppColor.white,
                               ))
                         ],
                       ),
@@ -259,6 +262,8 @@ class _CreateRaffleScreenState extends State<CreateRaffleScreen> {
                     validator: (value) {
                       if (value!.isEmpty) {
                         return 'Enter Current Entry';
+                      } else if (int.parse(value) < 1) {
+                        return 'At least add 1 Entry';
                       }
                       return null;
                     },
@@ -269,8 +274,8 @@ class _CreateRaffleScreenState extends State<CreateRaffleScreen> {
                         style: TextButton.styleFrom(
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30)),
-                          primary: AppColor.secondary,
-                          backgroundColor: AppColor.primary,
+                          primary: AppColor.primary,
+                          backgroundColor: AppColor.secondary,
                           padding: EdgeInsets.symmetric(
                               horizontal: 80, vertical: 12),
                         ),
@@ -313,7 +318,11 @@ class _CreateRaffleScreenState extends State<CreateRaffleScreen> {
                           children: [
                             InkWell(
                               onTap: () {
-                                Navigator.pop(context);
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Tabs()),
+                                );
                               },
                               child: RichText(
                                 text: new TextSpan(
@@ -350,8 +359,8 @@ class _CreateRaffleScreenState extends State<CreateRaffleScreen> {
                     style: TextButton.styleFrom(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30)),
-                      primary: AppColor.secondary,
-                      backgroundColor: AppColor.primary,
+                      primary: AppColor.primary,
+                      backgroundColor: AppColor.secondary,
                       padding:
                           EdgeInsets.symmetric(horizontal: 80, vertical: 12),
                     ),

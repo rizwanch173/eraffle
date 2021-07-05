@@ -1,6 +1,7 @@
 import 'package:eraffle/Models/PrizeList.dart';
 import 'package:eraffle/Screen/Raffle/RaffleScreen.dart';
 import 'package:eraffle/Services/API.dart';
+import 'package:eraffle/Tabs.dart';
 import 'package:eraffle/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -185,6 +186,7 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                   ),
                   child: TextFormField(
                     controller: _phoneController,
+                    keyboardType: TextInputType.phone,
                     style: TextStyle(
                       fontStyle: FontStyle.normal,
                       fontWeight: FontWeight.normal,
@@ -197,10 +199,10 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                       floatingLabelBehavior: FloatingLabelBehavior.always,
                       suffixIcon: Container(
                         padding: EdgeInsets.symmetric(vertical: 10),
-                        child: SvgPicture.asset(
-                          "assets/Icons/countdown.svg",
-                          height: 5,
-                          width: 5,
+                        child: Icon(
+                          Icons.phone_android_rounded,
+                          size: 25,
+                          color: Color(0xffFFE278),
                         ),
                       ),
                       border: OutlineInputBorder(
@@ -238,9 +240,9 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                             },
                             buttons: prizes,
                             selectedTextStyle: TextStyle(
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w900,
                               fontSize: 16,
-                              color: Colors.red,
+                              color: AppColor.primary,
                             ),
                             unselectedTextStyle: TextStyle(
                               fontWeight: FontWeight.w600,
@@ -249,7 +251,7 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                             ),
                             selectedColor: Colors.white,
                             unselectedColor: Colors.grey[300]!,
-                            selectedBorderColor: Colors.red,
+                            selectedBorderColor: AppColor.secondary,
                             unselectedBorderColor: Colors.grey[500]!,
                             borderRadius: BorderRadius.circular(5.0),
                             selectedShadow: <BoxShadow>[
@@ -296,8 +298,8 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                     style: TextButton.styleFrom(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30)),
-                      primary: AppColor.secondary,
-                      backgroundColor: AppColor.primary,
+                      primary: AppColor.primary,
+                      backgroundColor: AppColor.secondary,
                       padding:
                           EdgeInsets.symmetric(horizontal: 80, vertical: 12),
                     ),
@@ -342,15 +344,15 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                     style: TextButton.styleFrom(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30)),
-                      primary: AppColor.secondary,
-                      backgroundColor: AppColor.primary,
+                      primary: AppColor.primary,
+                      backgroundColor: AppColor.secondary,
                       padding:
                           EdgeInsets.symmetric(horizontal: 80, vertical: 12),
                     ),
                     onPressed: () async {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => RaffleScreen()),
+                        MaterialPageRoute(builder: (context) => Tabs()),
                       );
                     },
                     child: Text(

@@ -15,7 +15,6 @@ class _HomeState extends State<Tabs> {
   final List<Widget> _children = [
     RaffleScreen(),
     HistoryScreen(),
-    ProfileScreen(),
   ];
 
   void onTabTapped(int index) {
@@ -47,10 +46,6 @@ class _HomeState extends State<Tabs> {
             icon: new Icon(Icons.history),
             label: "History",
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Profile",
-          )
         ],
       ),
     );

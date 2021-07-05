@@ -5,14 +5,17 @@ class RaffleModel {
   int? initialEntries;
   int? status;
   String? createdDate;
+  String? closeDate;
 
-  RaffleModel(
-      {this.id,
-      this.eventName,
-      this.currentEntries,
-      this.initialEntries,
-      this.status,
-      this.createdDate});
+  RaffleModel({
+    this.id,
+    this.eventName,
+    this.currentEntries,
+    this.initialEntries,
+    this.status,
+    this.createdDate,
+    this.closeDate,
+  });
 
   RaffleModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -21,6 +24,7 @@ class RaffleModel {
     initialEntries = json['initial_entries'];
     status = json['status'];
     createdDate = json['created_date'];
+    closeDate = json['close_date'];
   }
 
   Map<String, dynamic> toJson() {
@@ -31,6 +35,7 @@ class RaffleModel {
     data['initial_entries'] = this.initialEntries;
     data['status'] = this.status;
     data['created_date'] = this.createdDate;
+    data['close_date'] = this.closeDate;
     return data;
   }
 }

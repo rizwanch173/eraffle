@@ -2,12 +2,13 @@ import 'package:eraffle/Models/PrizeList.dart';
 import 'package:eraffle/Models/RaffleModel.dart';
 import 'package:eraffle/Models/person_model.dart';
 import 'package:eraffle/Models/prize_model.dart';
+import 'package:eraffle/Models/winner_model.dart';
 import 'package:eraffle/Services/Database.dart';
 import 'package:sqflite/sqflite.dart';
 
 class Services {
   static Database? _db;
-  static Future<List<dynamic>> getActiveRaffle() async {
+  static Future<List<dynamic>> getRaffles({required which}) async {
     final db = DataBaseHelper();
     _db = await db.init();
     List models = [];
@@ -17,7 +18,7 @@ class Services {
     List<PrizeModel> prizeList = [];
     List<PersonModel> personList = [];
 
-    var res = await _db!.rawQuery("Select * from Raffle Where status=0");
+    var res = await _db!.rawQuery("Select * from Raffle Where status='$which'");
 
     obj =
         res.isNotEmpty ? res.map((c) => RaffleModel.fromJson(c)).toList() : [];
@@ -42,12 +43,59 @@ class Services {
     return models;
   }
 
+  static Future<List<dynamic>> getClosedRaffles() async {
+    final db = DataBaseHelper();
+    _db = await db.init();
+    List models = [];
+    List prizes = [];
+    List persons = [];
+    List winners = [];
+    List<RaffleModel> obj = [];
+    List<PrizeModel> prizeList = [];
+    List<PersonModel> personList = [];
+    List<WinnerModel> winnerList = [];
+
+    var res = await _db!.rawQuery("Select * from Raffle Where status=1");
+
+    obj =
+        res.isNotEmpty ? res.map((c) => RaffleModel.fromJson(c)).toList() : [];
+    for (var raffle in obj) {
+      var result = await _db!
+          .rawQuery("Select * from Prize where raffle_id='${raffle.id!}'");
+      var personResult = await _db!
+          .rawQuery("Select * from Particepent where raffle_id='${raffle.id}'");
+
+      var winnerResult = await _db!.rawQuery(
+          "Select p.name,w.prize_name,p.initial_entries,p.no_of_entries,w.date from Particepent p JOIN winner w on w.winner_id=p.id and w.raffle_id='${raffle.id}'");
+
+      prizeList = result.isNotEmpty
+          ? result.map((c) => PrizeModel.fromJson(c)).toList()
+          : [];
+      personList = personResult.isNotEmpty
+          ? personResult.map((c) => PersonModel.fromJson(c)).toList()
+          : [];
+      winnerList = result.isNotEmpty
+          ? winnerResult.map((c) => WinnerModel.fromJson(c)).toList()
+          : [];
+      prizes.add(prizeList);
+      persons.add(personList);
+      if (winnerList != []) {
+        winners.add(winnerList);
+      }
+    }
+    models.add(obj);
+    models.add(prizes);
+    models.add(persons);
+    models.add(winners);
+    return models;
+  }
+
   static Future<int> insertRaffle({name, entries}) async {
     final db = DataBaseHelper();
     _db = await db.init();
     DateTime now = DateTime.now();
     var res = await _db!.rawInsert(
-        "INSERT INTO Raffle(event_name,created_date,current_entries,initial_entries,status)VALUES('$name','$now','$entries','$entries',0);");
+        "INSERT INTO Raffle(event_name,created_date, close_date ,current_entries,initial_entries,status)VALUES('$name','$now','$now','$entries','$entries',0);");
     return res;
   }
 
@@ -55,10 +103,8 @@ class Services {
       {name, id, noOfEntries, prizeList, phoneNo}) async {
     final db = DataBaseHelper();
     _db = await db.init();
-    DateTime now = DateTime.now();
 
     var list = prizeList.join(",");
-    print(list);
 
     var res = await _db!.rawInsert(
         "INSERT INTO Particepent(name,no_of_entries,initial_entries,phone_no,prize_type,raffle_id)VALUES('$name','$noOfEntries' ,'$noOfEntries' , '$phoneNo','$list', '$id');");
@@ -103,7 +149,6 @@ class Services {
   static Future<int> updateRaffle({id, entries, name}) async {
     final db = DataBaseHelper();
     _db = await db.init();
-    DateTime now = DateTime.now();
     var res = await _db!.rawInsert(
         "UPDATE Raffle SET  event_name = '$name', current_entries =current_entries+ '$entries', initial_entries=initial_entries+'$entries' WHERE id = '$id' ;");
     return res;
@@ -125,5 +170,36 @@ class Services {
     var res = await _db!.rawInsert(
         "UPDATE Particepent SET   no_of_entries = 0 WHERE id = '$id' ;");
     return res;
+  }
+
+  static Future<int> insertRaffleHistory(
+      {raffle_id, person_id, prize, current_entries}) async {
+    final db = DataBaseHelper();
+    _db = await db.init();
+    var res;
+    DateTime now = DateTime.now();
+    res = await _db!.rawInsert(
+        "INSERT INTO winner(raffle_id,winner_id,prize_name,date,current_entries)VALUES('$raffle_id','$person_id','$prize','$now','$current_entries');");
+
+    return res;
+  }
+
+  static Future<int> closeRaffle({id}) async {
+    final db = DataBaseHelper();
+    _db = await db.init();
+
+    var res;
+    DateTime now = DateTime.now();
+    res = await _db!.rawInsert(
+        "UPDATE Raffle SET  status = 1 , close_date = '$now' WHERE id = '$id';");
+
+    return res;
+  }
+
+  static deleteRaffle({id}) async {
+    final db = DataBaseHelper();
+    _db = await db.init();
+    var res;
+    res = await _db!.rawQuery("DELETE FROM Raffle WHERE id = '$id';");
   }
 }

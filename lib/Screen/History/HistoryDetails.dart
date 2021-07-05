@@ -2,80 +2,57 @@ import 'package:eraffle/Models/PrizeList.dart';
 import 'package:eraffle/Models/RaffleModel.dart';
 import 'package:eraffle/Models/person_model.dart';
 import 'package:eraffle/Models/prize_model.dart';
-import 'package:eraffle/Services/API.dart';
+import 'package:eraffle/Models/winner_model.dart';
 import 'package:eraffle/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:group_button/group_button.dart';
 
-class RaffleDetailsScreen extends StatefulWidget {
-  const RaffleDetailsScreen({
+class HistoryDetailsScreen extends StatefulWidget {
+  const HistoryDetailsScreen({
     Key? key,
     required this.obj,
     required this.index,
     required this.prizeList,
     required this.personList,
+    required this.winnerList,
   }) : super(key: key);
 
   final List<RaffleModel> obj;
   final List<PrizeModel> prizeList;
   final List<PersonModel> personList;
-
+  final List<WinnerModel> winnerList;
   final int index;
 
   @override
   _RaffleDetailsScreenState createState() => _RaffleDetailsScreenState();
 }
 
-class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
+class _RaffleDetailsScreenState extends State<HistoryDetailsScreen> {
   bool personExpanded = false;
   bool prizeExpanded = false;
   bool editExpanded = false;
   bool haveData = false;
   bool isInserted = false;
 
-  TextEditingController _nameControllerEdit = new TextEditingController();
-  TextEditingController _entryControllerEdit = new TextEditingController();
-
-  TextEditingController _nameController = new TextEditingController();
-  TextEditingController _entryController = new TextEditingController();
-  TextEditingController _phoneController = new TextEditingController();
-  TextEditingController _prizeController = new TextEditingController();
   PersonModel? personModel;
   PrizeModel? prizeModel;
+  WinnerModel? winnerModel;
   List<String> prizeList = [];
   List<String> selectedList = [];
   List<String> prizes = [];
-  var _formKeyPerson = GlobalKey<FormState>();
-  var _formKeyPrize = GlobalKey<FormState>();
-  var _formKeyEdit = GlobalKey<FormState>();
-
-  List<DropdownMenuItem<Object?>> _dropdownTestItems = [];
-  var _selectedVal;
-
-  void addPrize({String? prize}) {
-    if (!selectedList.contains(prize))
-      setState(() {
-        selectedList.add(prize!);
-      });
-  }
-
-  void removePrize({String? prize}) {
-    if (selectedList.contains(prize))
-      setState(() {
-        selectedList.remove(prize);
-      });
-  }
 
   @override
   void initState() {
-    _nameControllerEdit.text = widget.obj[widget.index].eventName!;
-
     for (var prize in widget.prizeList) {
       prizes.add(prize.prizeDetail!);
     }
     selectedList.add(prizes[0]);
+
+    for (var winner in widget.winnerList) {
+      print(winner.name);
+    }
 
     super.initState();
   }
@@ -83,13 +60,6 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
   @override
   void dispose() {
     super.dispose();
-  }
-
-  onChangeDropdownTests(selectedTest) {
-    print(selectedTest);
-    setState(() {
-      _selectedVal = selectedTest;
-    });
   }
 
   final ScrollController _sc = ScrollController();
@@ -134,30 +104,6 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                   ),
                   child: Stack(
                     children: [
-                      Positioned(
-                        top: -5,
-                        right: 5,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: AppColor.secondary,
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(15),
-                            ),
-                          ),
-                          child: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  print("object");
-                                  editExpanded = !editExpanded;
-                                });
-                              },
-                              icon: Icon(
-                                Icons.edit,
-                                size: 30,
-                                color: Colors.white,
-                              )),
-                        ),
-                      ),
                       Column(
                         children: [
                           Padding(
@@ -202,6 +148,36 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                                 ),
                                 Text(
                                   widget.obj[widget.index].createdDate!
+                                      .substring(0, 16),
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(15),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(right: 15),
+                                    child: Text(
+                                      "Closing Date",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  widget.obj[widget.index].closeDate!
                                       .substring(0, 16),
                                   style: TextStyle(
                                     color: Colors.black,
@@ -337,6 +313,32 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                               expand: editExpanded,
                             ),
                           ),
+                          Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: TextButton(
+                              style: TextButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20)),
+                                primary: AppColor.primary,
+                                backgroundColor: AppColor.secondary,
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 8),
+                              ),
+                              onPressed: () async {
+                                setState(() {
+                                  editExpanded = !editExpanded;
+                                });
+                              },
+                              child: Text(
+                                'Winner Details',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -382,7 +384,7 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                             right: 20,
                           ),
                           child: Card(
-                            elevation: 3,
+                            elevation: 3.0,
                             child: Container(
                               child: Padding(
                                 padding: const EdgeInsets.all(15),
@@ -420,61 +422,8 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                           ),
                         );
                       }),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ExpandedSection(
-                          child: expandedCardPrize(),
-                          expand: prizeExpanded,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: TextButton(
-                          style: TextButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30)),
-                            primary: AppColor.primary,
-                            backgroundColor: AppColor.secondary,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 15, vertical: 8),
-                          ),
-                          onPressed: () async {
-                            if (prizeExpanded == false) {
-                              setState(() {
-                                prizeExpanded = true;
-                              });
-                            } else {
-                              if (_formKeyPrize.currentState!.validate()) {
-                                _formKeyPrize.currentState!.save();
-
-                                Services.insertSingleRafflePrize(
-                                  id: widget.obj[widget.index].id,
-                                  prize: _prizeController.text,
-                                ).then((value) {
-                                  prizeModel = new PrizeModel(
-                                    id: value,
-                                    prizeDetail: _prizeController.text,
-                                    raffleId: widget.obj[widget.index].id,
-                                  );
-                                  widget.prizeList.add(prizeModel!);
-                                  prizes.add(_prizeController.text);
-
-                                  setState(() {
-                                    prizeExpanded = false;
-                                  });
-                                });
-                              }
-                            }
-                          },
-                          child: Text(
-                            'Add Prize',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
-                        ),
+                      SizedBox(
+                        height: 20,
                       ),
                     ],
                   ),
@@ -666,81 +615,8 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                             ),
                           );
                         }),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ExpandedSection(
-                            child: expandedCard(),
-                            expand: personExpanded,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: TextButton(
-                            style: TextButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30)),
-                              primary: AppColor.primary,
-                              backgroundColor: AppColor.secondary,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 15, vertical: 8),
-                            ),
-                            onPressed: () async {
-                              if (personExpanded == false) {
-                                setState(() {
-                                  personExpanded = true;
-                                });
-                              } else {
-                                if (_formKeyPerson.currentState!.validate()) {
-                                  _formKeyPerson.currentState!.save();
-
-                                  Services.insertPerson(
-                                    name: _nameController.text,
-                                    noOfEntries: _entryController.text,
-                                    phoneNo: _phoneController.text,
-                                    prizeList: selectedList,
-                                    id: widget.obj[widget.index].id,
-                                  ).then((value) {
-                                    personModel = new PersonModel(
-                                      id: value,
-                                      name: _nameController.text,
-                                      noOfEntries: int.parse(
-                                        _entryController.text,
-                                      ),
-                                      phoneNo: _phoneController.text,
-                                      prizeType: selectedList.join(","),
-                                      raffleId: widget.obj[widget.index].id,
-                                      initialEntries: int.parse(
-                                        _entryController.text,
-                                      ),
-                                    );
-                                    widget.personList.add(personModel!);
-
-                                    setState(() {
-                                      widget.obj[widget.index].currentEntries =
-                                          widget.obj[widget.index]
-                                                  .currentEntries! -
-                                              int.parse(_entryController.text);
-                                      personExpanded = false;
-                                      isInserted = true;
-                                    });
-                                  });
-                                }
-                              }
-
-                              // WidgetsBinding.instance!.addPostFrameCallback(
-                              //     (_) => {
-                              //           _sc.jumpTo(_sc.position.minScrollExtent)
-                              //         });
-                            },
-                            child: Text(
-                              'Add Participate',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ),
+                        SizedBox(
+                          height: 20,
                         ),
                       ],
                     ),
@@ -755,409 +631,176 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
   }
 
   Widget expandedCardEntry() {
-    return Padding(
-        padding: EdgeInsets.only(right: 20, left: 20),
-        child: Form(
-          key: _formKeyEdit,
-          child: Column(
-            children: [
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 15),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: TextFormField(
-                  controller: _nameControllerEdit,
-                  keyboardType: TextInputType.emailAddress,
-                  style: TextStyle(
-                    fontStyle: FontStyle.normal,
-                    fontWeight: FontWeight.normal,
-                  ),
-                  decoration: InputDecoration(
-                    labelText: "Event Name",
-                    labelStyle: TextStyle(color: Colors.grey),
-                    hintText: "Enter Event Name",
-                    hintStyle: TextStyle(color: Colors.grey),
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                    suffixIcon: Container(
-                      padding: EdgeInsets.symmetric(vertical: 10),
-                      child: SvgPicture.asset(
-                        "assets/Icons/calendar.svg",
-                        height: 5,
-                        width: 5,
-                      ),
-                    ),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                        borderSide: BorderSide(color: AppColor.primary)),
-                    focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(25.0)),
-                        borderSide: BorderSide(color: AppColor.primary)),
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                  ),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Enter Event Name';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 15),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: TextFormField(
-                  controller: _entryControllerEdit,
-                  style: TextStyle(
-                    fontStyle: FontStyle.normal,
-                    fontWeight: FontWeight.normal,
-                  ),
-                  keyboardType: TextInputType.numberWithOptions(
-                    decimal: false,
-                    signed: true,
-                  ),
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.digitsOnly
-                  ],
-                  decoration: InputDecoration(
-                    labelText: "Initial Entry",
-                    labelStyle: TextStyle(color: Colors.grey),
-                    hintText: "Entries you want to add",
-                    hintStyle: TextStyle(color: Colors.grey),
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                    suffixIcon: Container(
-                      padding: EdgeInsets.symmetric(vertical: 10),
-                      child: SvgPicture.asset(
-                        "assets/Icons/countdown.svg",
-                        height: 5,
-                        width: 5,
-                      ),
-                    ),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                        borderSide: BorderSide(color: AppColor.primary)),
-                    focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(25.0)),
-                        borderSide: BorderSide(color: AppColor.primary)),
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                  ),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Enter Current Entry';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: TextButton(
-                  style: TextButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30)),
-                    primary: AppColor.primary,
-                    backgroundColor: AppColor.secondary,
-                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                  ),
-                  onPressed: () async {
-                    if (editExpanded == false) {
-                      setState(() {
-                        editExpanded = true;
-                      });
-                    } else {
-                      if (_formKeyEdit.currentState!.validate()) {
-                        _formKeyEdit.currentState!.save();
-
-                        Services.updateRaffle(
-                                id: widget.obj[widget.index].id,
-                                name: _nameControllerEdit.text,
-                                entries: int.parse(_entryControllerEdit.text))
-                            .then((value) {
-                          widget.obj[widget.index].eventName =
-                              _nameControllerEdit.text;
-                          widget.obj[widget.index].currentEntries =
-                              widget.obj[widget.index].currentEntries! +
-                                  int.parse(_entryControllerEdit.text);
-                          widget.obj[widget.index].initialEntries =
-                              widget.obj[widget.index].initialEntries! +
-                                  int.parse(_entryControllerEdit.text);
-                          setState(() {
-                            editExpanded = false;
-                          });
-                        });
-                      }
-                    }
-                  },
-                  child: Text(
-                    'Update',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ));
-  }
-
-  Widget expandedCardPrize() {
-    return Padding(
-        padding: EdgeInsets.only(right: 20, left: 20),
-        child: Form(
-          key: _formKeyPrize,
-          child: Column(
-            children: [
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 15),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: TextFormField(
-                  controller: _prizeController,
-                  style: TextStyle(
-                    fontStyle: FontStyle.normal,
-                    fontWeight: FontWeight.normal,
-                  ),
-                  decoration: InputDecoration(
-                    labelText: "Prize Details",
-                    labelStyle: TextStyle(color: Colors.grey),
-                    hintText: "Enter Prize Details",
-                    hintStyle: TextStyle(color: Colors.grey),
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                    suffixIcon: Container(
-                      padding: EdgeInsets.symmetric(vertical: 10),
-                      child: SvgPicture.asset(
-                        "assets/Icons/trophy.svg",
-                        height: 5,
-                        width: 5,
-                      ),
-                    ),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                        borderSide: BorderSide(color: AppColor.primary)),
-                    focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(25.0)),
-                        borderSide: BorderSide(color: AppColor.primary)),
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                  ),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Enter Prize Details';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-            ],
-          ),
-        ));
-  }
-
-  Widget expandedCard() {
-    return Padding(
-      padding: EdgeInsets.only(right: 20, left: 20),
-      child: Form(
-        key: _formKeyPerson,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        child: Column(
-          children: [
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 15),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: TextFormField(
-                controller: _nameController,
-                style: TextStyle(
-                  fontStyle: FontStyle.normal,
-                  fontWeight: FontWeight.normal,
-                ),
-                decoration: InputDecoration(
-                  labelText: "Person Name",
-                  labelStyle: TextStyle(color: Colors.grey),
-                  hintText: "Enter Person Name",
-                  hintStyle: TextStyle(color: Colors.grey),
-                  floatingLabelBehavior: FloatingLabelBehavior.always,
-                  suffixIcon: Container(
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    child: SvgPicture.asset(
-                      "assets/Icons/calendar.svg",
-                      height: 5,
-                      width: 5,
-                    ),
-                  ),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                      borderSide: BorderSide(color: AppColor.primary)),
-                  focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(25.0)),
-                      borderSide: BorderSide(color: AppColor.primary)),
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                ),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Enter Person Name';
-                  }
-                  return null;
-                },
-              ),
+    return Column(
+      children: [
+        ...List.generate(widget.winnerList.length, (index) {
+          return Padding(
+            padding: const EdgeInsets.only(
+              top: 5,
+              left: 10,
+              right: 10,
             ),
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 15),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: TextFormField(
-                controller: _entryController,
-                style: TextStyle(
-                  fontStyle: FontStyle.normal,
-                  fontWeight: FontWeight.normal,
-                ),
-                keyboardType: TextInputType.numberWithOptions(
-                  decimal: false,
-                  signed: true,
-                ),
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.digitsOnly
-                ],
-                decoration: InputDecoration(
-                  labelText: "No of Entry",
-                  labelStyle: TextStyle(color: Colors.grey),
-                  hintText: "Enter No of Entry",
-                  hintStyle: TextStyle(color: Colors.grey),
-                  floatingLabelBehavior: FloatingLabelBehavior.always,
-                  suffixIcon: Container(
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    child: SvgPicture.asset(
-                      "assets/Icons/countdown.svg",
-                      height: 5,
-                      width: 5,
-                    ),
-                  ),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                      borderSide: BorderSide(color: AppColor.primary)),
-                  focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(25.0)),
-                      borderSide: BorderSide(color: AppColor.primary)),
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                ),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Enter No of Entry';
-                  } else if (int.parse(value) >
-                      widget.obj[widget.index].currentEntries!) {
-                    return 'Must be less then Total Raffle Entries (${widget.obj[widget.index].currentEntries!})';
-                  }
-                  return null;
-                },
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 15),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: TextFormField(
-                controller: _phoneController,
-                keyboardType: TextInputType.phone,
-                style: TextStyle(
-                  fontStyle: FontStyle.normal,
-                  fontWeight: FontWeight.normal,
-                ),
-                decoration: InputDecoration(
-                  labelText: "Phone Number",
-                  labelStyle: TextStyle(color: Colors.grey),
-                  hintText: "Enter Phone Number",
-                  hintStyle: TextStyle(color: Colors.grey),
-                  floatingLabelBehavior: FloatingLabelBehavior.always,
-                  suffixIcon: Container(
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    child: Icon(
-                      Icons.phone_android_rounded,
-                      size: 25,
-                      color: Color(0xffFFE278),
-                    ),
-                  ),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                      borderSide: BorderSide(color: AppColor.primary)),
-                  focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(25.0)),
-                      borderSide: BorderSide(color: AppColor.primary)),
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                ),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Enter Phone Number';
-                  }
-                  return null;
-                },
-              ),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: GroupButton(
-                    spacing: 5,
-                    selectedButtons: [0],
-                    isRadio: false,
-                    direction: Axis.horizontal,
-                    onSelected: (index, isSelected) {
-                      if (isSelected) {
-                        addPrize(prize: prizes[index]);
-                      } else {
-                        removePrize(prize: prizes[index]);
-                      }
-                      print(selectedList);
-                      setState(() {});
-                    },
-                    buttons: prizes,
-                    selectedTextStyle: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
-                    unselectedTextStyle: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
-                    selectedColor: AppColor.secondary,
-                    unselectedColor: Colors.grey[300]!,
-                    selectedBorderColor: AppColor.primary,
-                    unselectedBorderColor: Colors.grey[500]!,
-                    borderRadius: BorderRadius.circular(5.0),
-                    selectedShadow: <BoxShadow>[
-                      BoxShadow(color: Colors.transparent)
-                    ],
-                    unselectedShadow: <BoxShadow>[
-                      BoxShadow(color: Colors.transparent)
+            child: Card(
+              elevation: 3.0,
+              child: Container(
+                child: Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 15),
+                                child: Text(
+                                  "Winner name",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Text(
+                              widget.winnerList[index].name!,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 15),
+                                child: Text(
+                                  "Prize",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Text(
+                              widget.winnerList[index].prizeName!,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 15),
+                                child: Text(
+                                  "Initial Entries",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Text(
+                              widget.winnerList[index].initialEntries
+                                  .toString(),
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 15),
+                                child: Text(
+                                  "Current Entries",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Text(
+                              widget.winnerList[index].noOfEntries.toString(),
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 15),
+                                child: Text(
+                                  "Winning Date",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Text(
+                              widget.winnerList[index].date!.substring(0, 16),
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ],
-            )
-          ],
-        ),
-      ),
+              ),
+            ),
+          );
+        }),
+      ],
     );
   }
 }
