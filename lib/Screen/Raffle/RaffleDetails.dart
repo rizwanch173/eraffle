@@ -333,7 +333,46 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                                       padding: EdgeInsets.symmetric(
                                           horizontal: 50, vertical: 15),
                                     ),
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      if (editExpanded == false) {
+                                        setState(() {
+                                          editExpanded = true;
+                                        });
+                                      } else {
+                                        if (_formKeyEdit.currentState!
+                                            .validate()) {
+                                          _formKeyEdit.currentState!.save();
+
+                                          Services.updateRaffle(
+                                                  id: widget
+                                                      .obj[widget.index].id,
+                                                  name:
+                                                      _nameControllerEdit.text,
+                                                  entries: int.parse(
+                                                      _entryControllerEdit
+                                                          .text))
+                                              .then((value) {
+                                            widget.obj[widget.index].eventName =
+                                                _nameControllerEdit.text;
+                                            widget.obj[widget.index]
+                                                .currentEntries = widget
+                                                    .obj[widget.index]
+                                                    .currentEntries! +
+                                                int.parse(
+                                                    _entryControllerEdit.text);
+                                            widget.obj[widget.index]
+                                                .initialEntries = widget
+                                                    .obj[widget.index]
+                                                    .initialEntries! +
+                                                int.parse(
+                                                    _entryControllerEdit.text);
+                                            setState(() {
+                                              editExpanded = false;
+                                            });
+                                          });
+                                        }
+                                      }
+                                    },
                                     child: Text(
                                       'Update',
                                       style: TextStyle(
