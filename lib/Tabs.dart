@@ -1,6 +1,7 @@
 import 'package:eraffle/Screen/History/HistoryScreen.dart';
 import 'package:eraffle/Screen/Profile/ProfileScreen.dart';
 import 'package:eraffle/Screen/Raffle/RaffleScreen.dart';
+import 'package:eraffle/theme/theme.dart';
 import 'package:flutter/material.dart';
 
 class Tabs extends StatefulWidget {
@@ -33,7 +34,7 @@ class _HomeState extends State<Tabs> {
     return Scaffold(
       body: _children[_currentIndex], // new
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.purpleAccent,
+        selectedItemColor: AppColor.secondary,
         selectedFontSize: 15,
         onTap: onTabTapped, // new
         currentIndex: _currentIndex, // new

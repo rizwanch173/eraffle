@@ -40,68 +40,55 @@ class _RaffleCardState extends State<RaffleCard> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => RaffleDetailsScreen(
-                    index: widget.index,
-                    obj: widget.obj,
-                    personList: personList,
-                    prizeList: prizeList,
-                  )),
-        ).then((value) {
-          setState(() {});
-        });
-      },
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 8),
-        child: Column(
-          children: [
-            SizedBox(width: 10),
-            Container(
-              width: MediaQuery.of(context).size.width - 50,
-              decoration: new BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.shade400,
-                    blurRadius: 2.0,
-                    spreadRadius: 0.0,
-                    offset: Offset(1.0, 0.0), // shadow direction: bottom right
-                  )
-                ],
-                gradient: new LinearGradient(
-                    stops: [0.98, 0.02],
-                    colors: [Colors.white, AppColor.primary]),
-                borderRadius: new BorderRadius.all(
-                  const Radius.circular(6.0),
-                ),
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        children: [
+          SizedBox(width: 10),
+          Container(
+            width: MediaQuery.of(context).size.width - 50,
+            decoration: new BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.shade400,
+                  blurRadius: 2.0,
+                  spreadRadius: 0.0,
+                  offset: Offset(1.0, 0.0), // shadow direction: bottom right
+                )
+              ],
+              gradient: new LinearGradient(
+                  stops: [0.98, 0.02],
+                  colors: [Colors.white, AppColor.primary]),
+              borderRadius: new BorderRadius.all(
+                const Radius.circular(10.0),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 5),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              widget.obj[widget.index].eventName.toString(),
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(0),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            widget.obj[widget.index].eventName.toString(),
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
                             ),
-                          )
-                        ],
-                      ),
+                          ),
+                        )
+                      ],
                     ),
-                    Row(
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
                       children: [
                         Text(
                           "Creation Date",
@@ -123,47 +110,101 @@ class _RaffleCardState extends State<RaffleCard> {
                         ),
                       ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 5),
-                      child: TextButton(
-                        style: TextButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30)),
-                          primary: AppColor.primary,
-                          backgroundColor: AppColor.secondary,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 50, vertical: 10),
-                        ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => DrawScreen(
-                                      index: widget.index,
-                                      obj: widget.obj,
-                                      personList: personList,
-                                      prizeList: prizeList,
-                                    )),
-                          ).then((value) {
-                            setState(() {});
-                          });
-                        },
-                        child: Text(
-                          'Draw',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 5),
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              // borderRadius: BorderRadius.circular(30),
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.zero,
+                                topRight: Radius.circular(10.0),
+                                bottomLeft: Radius.circular(10.0),
+                                bottomRight: Radius.zero,
+                              ),
+                            ),
+                            primary: AppColor.primary,
+                            backgroundColor: AppColor.primary,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 50, vertical: 15),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => RaffleDetailsScreen(
+                                        index: widget.index,
+                                        obj: widget.obj,
+                                        personList: personList,
+                                        prizeList: prizeList,
+                                      )),
+                            ).then((value) {
+                              setState(() {});
+                            });
+                          },
+                          child: Text(
+                            'Details',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 5),
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              // borderRadius: BorderRadius.circular(30),
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(10.0),
+                                topRight: Radius.zero,
+                                bottomLeft: Radius.zero,
+                                bottomRight: Radius.circular(10.0),
+                              ),
+                            ),
+                            primary: AppColor.primary,
+                            backgroundColor: AppColor.primary,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 50, vertical: 15),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => DrawScreen(
+                                        index: widget.index,
+                                        obj: widget.obj,
+                                        personList: personList,
+                                        prizeList: prizeList,
+                                      )),
+                            ).then((value) {
+                              setState(() {});
+                            });
+                          },
+                          child: Text(
+                            'Draw',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

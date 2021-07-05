@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:eraffle/Screen/Raffle/RaffleScreen.dart';
+import 'package:eraffle/Splash.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:eraffle/Services/API.dart';
 import 'package:eraffle/Tabs.dart';
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Color(0xffCC7F2A),
       ),
-      home: Tabs(),
+      home: SplashScreen(),
     );
   }
 }

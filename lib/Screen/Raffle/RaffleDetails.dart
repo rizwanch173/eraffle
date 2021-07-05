@@ -132,209 +132,247 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                       const Radius.circular(6.0),
                     ),
                   ),
-                  child: Stack(
+                  child: Column(
                     children: [
-                      Positioned(
-                        top: -5,
-                        right: 5,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: AppColor.secondary,
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(15),
+                      Padding(
+                        padding: const EdgeInsets.all(15),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 15),
+                                child: Text(
+                                  widget.obj[widget.index].eventName!,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                          child: IconButton(
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(15),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 15),
+                                child: Text(
+                                  "Creation Date",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Text(
+                              widget.obj[widget.index].createdDate!
+                                  .substring(0, 16),
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(15),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 15),
+                                child: Text(
+                                  "Current Entries",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Text(
+                              widget.obj[widget.index].initialEntries!
+                                  .toString(),
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(15),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 15),
+                                child: Text(
+                                  "Available Entries",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Text(
+                              widget.obj[widget.index].currentEntries!
+                                  .toString(),
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(15),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 15),
+                                child: Text(
+                                  "Total Participants",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Text(
+                              widget.personList.length.toString(),
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(15),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 15),
+                                child: Text(
+                                  "Total Prize",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Text(
+                              widget.prizeList.length.toString(),
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ExpandedSection(
+                          child: expandedCardEntry(),
+                          expand: editExpanded,
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          editExpanded
+                              ? Padding(
+                                  padding: const EdgeInsets.only(top: 10),
+                                  child: TextButton(
+                                    style: TextButton.styleFrom(
+                                      shape: RoundedRectangleBorder(
+                                        // borderRadius: BorderRadius.circular(30),
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.zero,
+                                          topRight: Radius.circular(10.0),
+                                          bottomLeft: Radius.circular(10.0),
+                                          bottomRight: Radius.zero,
+                                        ),
+                                      ),
+                                      primary: AppColor.primary,
+                                      backgroundColor: AppColor.primary,
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 50, vertical: 15),
+                                    ),
+                                    onPressed: () {},
+                                    child: Text(
+                                      'Update',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : Container(),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 5),
+                            child: TextButton(
+                              style: TextButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  // borderRadius: BorderRadius.circular(30),
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(10.0),
+                                    topRight: Radius.zero,
+                                    bottomLeft: Radius.zero,
+                                    bottomRight: Radius.circular(10.0),
+                                  ),
+                                ),
+                                primary: AppColor.primary,
+                                backgroundColor: AppColor.primary,
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 50, vertical: 15),
+                              ),
                               onPressed: () {
                                 setState(() {
-                                  print("object");
                                   editExpanded = !editExpanded;
                                 });
                               },
-                              icon: Icon(
+                              child: Icon(
                                 Icons.edit,
-                                size: 30,
                                 color: Colors.white,
-                              )),
-                        ),
-                      ),
-                      Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(15),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Flexible(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(right: 15),
-                                    child: Text(
-                                      widget.obj[widget.index].eventName!,
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(15),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Flexible(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(right: 15),
-                                    child: Text(
-                                      "Creation Date",
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Text(
-                                  widget.obj[widget.index].createdDate!
-                                      .substring(0, 16),
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(15),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Flexible(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(right: 15),
-                                    child: Text(
-                                      "Current Entries",
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Text(
-                                  widget.obj[widget.index].initialEntries!
-                                      .toString(),
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(15),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Flexible(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(right: 15),
-                                    child: Text(
-                                      "Available Entries",
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Text(
-                                  widget.obj[widget.index].currentEntries!
-                                      .toString(),
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(15),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Flexible(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(right: 15),
-                                    child: Text(
-                                      "Total Participants",
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Text(
-                                  widget.personList.length.toString(),
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(15),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Flexible(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(right: 15),
-                                    child: Text(
-                                      "Total Prize",
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Text(
-                                  widget.prizeList.length.toString(),
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: ExpandedSection(
-                              child: expandedCardEntry(),
-                              expand: editExpanded,
+                                size: 25,
+                              ),
                             ),
                           ),
                         ],
@@ -427,54 +465,66 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                           expand: prizeExpanded,
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: TextButton(
-                          style: TextButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30)),
-                            primary: AppColor.primary,
-                            backgroundColor: AppColor.secondary,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 15, vertical: 8),
-                          ),
-                          onPressed: () async {
-                            if (prizeExpanded == false) {
-                              setState(() {
-                                prizeExpanded = true;
-                              });
-                            } else {
-                              if (_formKeyPrize.currentState!.validate()) {
-                                _formKeyPrize.currentState!.save();
-
-                                Services.insertSingleRafflePrize(
-                                  id: widget.obj[widget.index].id,
-                                  prize: _prizeController.text,
-                                ).then((value) {
-                                  prizeModel = new PrizeModel(
-                                    id: value,
-                                    prizeDetail: _prizeController.text,
-                                    raffleId: widget.obj[widget.index].id,
-                                  );
-                                  widget.prizeList.add(prizeModel!);
-                                  prizes.add(_prizeController.text);
-
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 5),
+                            child: TextButton(
+                              style: TextButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  // borderRadius: BorderRadius.circular(30),
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(10.0),
+                                    topRight: Radius.zero,
+                                    bottomLeft: Radius.zero,
+                                    bottomRight: Radius.circular(10.0),
+                                  ),
+                                ),
+                                primary: AppColor.primary,
+                                backgroundColor: AppColor.primary,
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 50, vertical: 15),
+                              ),
+                              onPressed: () {
+                                if (prizeExpanded == false) {
                                   setState(() {
-                                    prizeExpanded = false;
+                                    prizeExpanded = true;
                                   });
-                                });
-                              }
-                            }
-                          },
-                          child: Text(
-                            'Add Prize',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
+                                } else {
+                                  if (_formKeyPrize.currentState!.validate()) {
+                                    _formKeyPrize.currentState!.save();
+
+                                    Services.insertSingleRafflePrize(
+                                      id: widget.obj[widget.index].id,
+                                      prize: _prizeController.text,
+                                    ).then((value) {
+                                      prizeModel = new PrizeModel(
+                                        id: value,
+                                        prizeDetail: _prizeController.text,
+                                        raffleId: widget.obj[widget.index].id,
+                                      );
+                                      widget.prizeList.add(prizeModel!);
+                                      prizes.add(_prizeController.text);
+
+                                      setState(() {
+                                        prizeExpanded = false;
+                                      });
+                                    });
+                                  }
+                                }
+                              },
+                              child: Text(
+                                'Add',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
                     ],
                   ),
@@ -673,74 +723,83 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                             expand: personExpanded,
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: TextButton(
-                            style: TextButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30)),
-                              primary: AppColor.primary,
-                              backgroundColor: AppColor.secondary,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 15, vertical: 8),
-                            ),
-                            onPressed: () async {
-                              if (personExpanded == false) {
-                                setState(() {
-                                  personExpanded = true;
-                                });
-                              } else {
-                                if (_formKeyPerson.currentState!.validate()) {
-                                  _formKeyPerson.currentState!.save();
-
-                                  Services.insertPerson(
-                                    name: _nameController.text,
-                                    noOfEntries: _entryController.text,
-                                    phoneNo: _phoneController.text,
-                                    prizeList: selectedList,
-                                    id: widget.obj[widget.index].id,
-                                  ).then((value) {
-                                    personModel = new PersonModel(
-                                      id: value,
-                                      name: _nameController.text,
-                                      noOfEntries: int.parse(
-                                        _entryController.text,
-                                      ),
-                                      phoneNo: _phoneController.text,
-                                      prizeType: selectedList.join(","),
-                                      raffleId: widget.obj[widget.index].id,
-                                      initialEntries: int.parse(
-                                        _entryController.text,
-                                      ),
-                                    );
-                                    widget.personList.add(personModel!);
-
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 5),
+                              child: TextButton(
+                                style: TextButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    // borderRadius: BorderRadius.circular(30),
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(10.0),
+                                      topRight: Radius.zero,
+                                      bottomLeft: Radius.zero,
+                                      bottomRight: Radius.circular(10.0),
+                                    ),
+                                  ),
+                                  primary: AppColor.primary,
+                                  backgroundColor: AppColor.primary,
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 50, vertical: 15),
+                                ),
+                                onPressed: () {
+                                  if (personExpanded == false) {
                                     setState(() {
-                                      widget.obj[widget.index].currentEntries =
+                                      personExpanded = true;
+                                    });
+                                  } else {
+                                    if (_formKeyPerson.currentState!
+                                        .validate()) {
+                                      _formKeyPerson.currentState!.save();
+
+                                      Services.insertPerson(
+                                        name: _nameController.text,
+                                        noOfEntries: _entryController.text,
+                                        phoneNo: _phoneController.text,
+                                        prizeList: selectedList,
+                                        id: widget.obj[widget.index].id,
+                                      ).then((value) {
+                                        personModel = new PersonModel(
+                                          id: value,
+                                          name: _nameController.text,
+                                          noOfEntries: int.parse(
+                                            _entryController.text,
+                                          ),
+                                          phoneNo: _phoneController.text,
+                                          prizeType: selectedList.join(","),
+                                          raffleId: widget.obj[widget.index].id,
+                                          initialEntries: int.parse(
+                                            _entryController.text,
+                                          ),
+                                        );
+                                        widget.personList.add(personModel!);
+
+                                        setState(() {
                                           widget.obj[widget.index]
+                                              .currentEntries = widget
+                                                  .obj[widget.index]
                                                   .currentEntries! -
                                               int.parse(_entryController.text);
-                                      personExpanded = false;
-                                      isInserted = true;
-                                    });
-                                  });
-                                }
-                              }
-
-                              // WidgetsBinding.instance!.addPostFrameCallback(
-                              //     (_) => {
-                              //           _sc.jumpTo(_sc.position.minScrollExtent)
-                              //         });
-                            },
-                            child: Text(
-                              'Add Participate',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
+                                          personExpanded = false;
+                                          isInserted = true;
+                                        });
+                                      });
+                                    }
+                                  }
+                                },
+                                child: Text(
+                                  'Add',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ),
                       ],
                     ),
@@ -853,55 +912,6 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                     }
                     return null;
                   },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: TextButton(
-                  style: TextButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30)),
-                    primary: AppColor.primary,
-                    backgroundColor: AppColor.secondary,
-                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                  ),
-                  onPressed: () async {
-                    if (editExpanded == false) {
-                      setState(() {
-                        editExpanded = true;
-                      });
-                    } else {
-                      if (_formKeyEdit.currentState!.validate()) {
-                        _formKeyEdit.currentState!.save();
-
-                        Services.updateRaffle(
-                                id: widget.obj[widget.index].id,
-                                name: _nameControllerEdit.text,
-                                entries: int.parse(_entryControllerEdit.text))
-                            .then((value) {
-                          widget.obj[widget.index].eventName =
-                              _nameControllerEdit.text;
-                          widget.obj[widget.index].currentEntries =
-                              widget.obj[widget.index].currentEntries! +
-                                  int.parse(_entryControllerEdit.text);
-                          widget.obj[widget.index].initialEntries =
-                              widget.obj[widget.index].initialEntries! +
-                                  int.parse(_entryControllerEdit.text);
-                          setState(() {
-                            editExpanded = false;
-                          });
-                        });
-                      }
-                    }
-                  },
-                  child: Text(
-                    'Update',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
                 ),
               ),
             ],

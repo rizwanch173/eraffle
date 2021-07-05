@@ -29,7 +29,7 @@ class HistoryCard extends StatefulWidget {
 
 class _RaffleCardState extends State<HistoryCard> {
   List<PrizeModel> prizeList = [];
-
+  bool editExpanded = false;
   List<PersonModel> personList = [];
   List<WinnerModel> winnerList = [];
   @override
@@ -43,74 +43,125 @@ class _RaffleCardState extends State<HistoryCard> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {},
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 8),
-        child: Column(
-          children: [
-            SizedBox(width: 10),
-            Container(
-              width: MediaQuery.of(context).size.width - 50,
-              decoration: new BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.shade400,
-                    blurRadius: 2.0,
-                    spreadRadius: 0.0,
-                    offset: Offset(1.0, 0.0), // shadow direction: bottom right
-                  )
-                ],
-                gradient: new LinearGradient(
-                    stops: [0.98, 0.02],
-                    colors: [Colors.white, AppColor.primary]),
-                borderRadius: new BorderRadius.all(
-                  const Radius.circular(6.0),
-                ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        children: [
+          SizedBox(width: 10),
+          Container(
+            decoration: new BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.shade400,
+                  blurRadius: 2.0,
+                  spreadRadius: 0.0,
+                  offset: Offset(1.0, 0.0), // shadow direction: bottom right
+                )
+              ],
+              gradient: new LinearGradient(
+                  stops: [0.98, 0.02],
+                  colors: [Colors.white, AppColor.primary]),
+              borderRadius: new BorderRadius.all(
+                const Radius.circular(6.0),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+            ),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
+                  child: Card(
+                    elevation: editExpanded ? 3 : 0,
+                    child: Column(
                       children: [
-                        Flexible(
-                          child: Text(
-                            widget.obj[widget.index].eventName.toString(),
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  widget.obj[widget.index].eventName.toString(),
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              )
+                            ],
                           ),
-                        )
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Text(
+                                "Closing Date",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                              Spacer(),
+                              Text(
+                                widget.obj[widget.index].createdDate!
+                                    .substring(0, 16),
+                                style: TextStyle(
+                                  color: Colors.black45,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(editExpanded ? 8.0 : 0),
+                  child: ExpandedSection(
+                    child: expandedCardEntry(),
+                    expand: editExpanded,
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 5, top: 5),
-                      child: Row(
-                        children: [
-                          Text(
-                            "Closing Date",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
+                      padding: const EdgeInsets.only(top: 5),
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            // borderRadius: BorderRadius.circular(30),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.zero,
+                              topRight: Radius.circular(10.0),
+                              bottomLeft: Radius.circular(10.0),
+                              bottomRight: Radius.zero,
                             ),
                           ),
-                          Spacer(),
-                          Text(
-                            widget.obj[widget.index].createdDate!
-                                .substring(0, 16),
-                            style: TextStyle(
-                              color: Colors.black45,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
+                          primary: AppColor.primary,
+                          backgroundColor: AppColor.primary,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 50, vertical: 15),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            editExpanded = !editExpanded;
+                          });
+                        },
+                        child: Text(
+                          editExpanded ? 'Close' : 'Winners',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
                           ),
-                        ],
+                        ),
                       ),
                     ),
                     Padding(
@@ -118,11 +169,18 @@ class _RaffleCardState extends State<HistoryCard> {
                       child: TextButton(
                         style: TextButton.styleFrom(
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30)),
+                            // borderRadius: BorderRadius.circular(30),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(10.0),
+                              topRight: Radius.zero,
+                              bottomLeft: Radius.zero,
+                              bottomRight: Radius.circular(10.0),
+                            ),
+                          ),
                           primary: AppColor.primary,
-                          backgroundColor: AppColor.secondary,
+                          backgroundColor: AppColor.primary,
                           padding: EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 10),
+                              horizontal: 50, vertical: 15),
                         ),
                         onPressed: () {
                           Navigator.push(
@@ -151,11 +209,244 @@ class _RaffleCardState extends State<HistoryCard> {
                     ),
                   ],
                 ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget expandedCardEntry() {
+    return Column(
+      children: [
+        ...List.generate(winnerList.length, (index) {
+          return Padding(
+            padding: const EdgeInsets.only(
+              top: 5,
+              left: 10,
+              right: 10,
+            ),
+            child: Card(
+              elevation: 3.0,
+              child: Container(
+                child: Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 15),
+                                child: Text(
+                                  "Winner name",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Text(
+                              winnerList[index].name!,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 15),
+                                child: Text(
+                                  "Prize",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Text(
+                              winnerList[index].prizeName!,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 15),
+                                child: Text(
+                                  "Initial Entries",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Text(
+                              winnerList[index].initialEntries.toString(),
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 15),
+                                child: Text(
+                                  "Current Entries",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Text(
+                              winnerList[index].noOfEntries.toString(),
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 15),
+                                child: Text(
+                                  "Winning Date",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Text(
+                              winnerList[index].date!.substring(0, 16),
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-          ],
-        ),
-      ),
+          );
+        }),
+      ],
+    );
+  }
+}
+
+class ExpandedSection extends StatefulWidget {
+  final Widget? child;
+  final bool? expand;
+  ExpandedSection({this.expand = false, this.child});
+
+  @override
+  _ExpandedSectionState createState() => _ExpandedSectionState();
+}
+
+class _ExpandedSectionState extends State<ExpandedSection>
+    with SingleTickerProviderStateMixin {
+  AnimationController? expandController;
+  Animation<double>? animation;
+
+  @override
+  void initState() {
+    super.initState();
+    prepareAnimations();
+    _runExpandCheck();
+  }
+
+  ///Setting up the animation
+  void prepareAnimations() {
+    expandController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 500));
+    animation = CurvedAnimation(
+      parent: expandController!,
+      curve: Curves.fastOutSlowIn,
+    );
+  }
+
+  void _runExpandCheck() {
+    if (widget.expand!) {
+      expandController!.forward();
+    } else {
+      expandController!.reverse();
+    }
+  }
+
+  @override
+  void didUpdateWidget(ExpandedSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _runExpandCheck();
+  }
+
+  @override
+  void dispose() {
+    expandController!.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: SizeTransition(
+          axisAlignment: 1.0, sizeFactor: animation!, child: widget.child),
     );
   }
 }

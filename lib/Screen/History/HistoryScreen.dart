@@ -46,7 +46,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.only(right: 20, left: 20),
+          padding: EdgeInsets.only(right: 10, left: 10),
           child: isData
               ? Column(
                   children: [

@@ -427,7 +427,7 @@ class _DrawScreenState extends State<DrawScreen> {
                             child: TextButton(
                               style: TextButton.styleFrom(
                                 shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30)),
+                                    borderRadius: BorderRadius.circular(10)),
                                 primary: AppColor.primary,
                                 backgroundColor: AppColor.secondary,
                                 padding: EdgeInsets.symmetric(

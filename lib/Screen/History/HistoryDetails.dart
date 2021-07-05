@@ -313,31 +313,43 @@ class _RaffleDetailsScreenState extends State<HistoryDetailsScreen> {
                               expand: editExpanded,
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: TextButton(
-                              style: TextButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20)),
-                                primary: AppColor.primary,
-                                backgroundColor: AppColor.secondary,
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 8),
-                              ),
-                              onPressed: () async {
-                                setState(() {
-                                  editExpanded = !editExpanded;
-                                });
-                              },
-                              child: Text(
-                                'Winner Details',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(top: 5),
+                                child: TextButton(
+                                  style: TextButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      // borderRadius: BorderRadius.circular(30),
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(10.0),
+                                        topRight: Radius.zero,
+                                        bottomLeft: Radius.zero,
+                                        bottomRight: Radius.circular(10.0),
+                                      ),
+                                    ),
+                                    primary: AppColor.primary,
+                                    backgroundColor: AppColor.primary,
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 50, vertical: 15),
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      editExpanded = !editExpanded;
+                                    });
+                                  },
+                                  child: Text(
+                                    editExpanded ? 'Close' : 'Winners',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
+                            ],
                           ),
                         ],
                       ),
