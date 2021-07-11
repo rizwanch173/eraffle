@@ -171,9 +171,11 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                     validator: (value) {
                       if (value!.isEmpty) {
                         return 'Enter No of Entry';
-                      } else if (int.parse(value) > widget.totalEntries) {
-                        return 'Must be less then Total Raffle Entries (${widget.totalEntries})';
+                      } else if (widget.totalEntries != -1) {
+                        if (int.parse(value) > widget.totalEntries)
+                          return 'Must be less then Total Raffle Entries (${widget.totalEntries})';
                       }
+
                       return null;
                     },
                   ),
@@ -316,12 +318,15 @@ class _AddPersonScreenState extends State<AddPersonScreen> {
                         ).then((value) {
                           setState(() {
                             isInserted = true;
-                            widget.totalEntries -=
-                                int.parse(_entryController.text);
                             _entryController.clear();
                             _nameController.clear();
                             _phoneController.clear();
                             _chosenValue = 0;
+                            if (widget.totalEntries == -1) {
+                            } else {
+                              widget.totalEntries -=
+                                  int.parse(_entryController.text);
+                            }
                           });
                         });
                       } //Navigator.pop(context);

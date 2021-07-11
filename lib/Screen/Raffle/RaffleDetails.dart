@@ -195,7 +195,7 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                               child: Padding(
                                 padding: const EdgeInsets.only(right: 15),
                                 child: Text(
-                                  "Current Entries",
+                                  "Entries Available",
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
@@ -205,8 +205,10 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                               ),
                             ),
                             Text(
-                              widget.obj[widget.index].initialEntries!
-                                  .toString(),
+                              widget.obj[widget.index].currentEntries == -1
+                                  ? "N/A"
+                                  : widget.obj[widget.index].currentEntries!
+                                      .toString(),
                               style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
@@ -225,7 +227,7 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                               child: Padding(
                                 padding: const EdgeInsets.only(right: 15),
                                 child: Text(
-                                  "Available Entries",
+                                  "Current Entries",
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
@@ -235,7 +237,7 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                               ),
                             ),
                             Text(
-                              widget.obj[widget.index].currentEntries!
+                              widget.obj[widget.index].initialEntries!
                                   .toString(),
                               style: TextStyle(
                                 color: Colors.black,
@@ -814,16 +816,37 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                                           ),
                                         );
                                         widget.personList.add(personModel!);
-
-                                        setState(() {
-                                          widget.obj[widget.index]
-                                              .currentEntries = widget
-                                                  .obj[widget.index]
-                                                  .currentEntries! -
-                                              int.parse(_entryController.text);
-                                          personExpanded = false;
-                                          isInserted = true;
-                                        });
+                                        if (widget.obj[widget.index]
+                                                .currentEntries ==
+                                            -1) {
+                                          setState(() {
+                                            personExpanded = false;
+                                            isInserted = true;
+                                            widget.obj[widget.index]
+                                                .initialEntries = widget
+                                                    .obj[widget.index]
+                                                    .initialEntries! +
+                                                int.parse(
+                                                    _entryController.text);
+                                          });
+                                        } else {
+                                          setState(() {
+                                            widget.obj[widget.index]
+                                                .currentEntries = widget
+                                                    .obj[widget.index]
+                                                    .currentEntries! -
+                                                int.parse(
+                                                    _entryController.text);
+                                            widget.obj[widget.index]
+                                                .initialEntries = widget
+                                                    .obj[widget.index]
+                                                    .initialEntries! +
+                                                int.parse(
+                                                    _entryController.text);
+                                            personExpanded = false;
+                                            isInserted = true;
+                                          });
+                                        }
                                       });
                                     }
                                   }
@@ -1109,9 +1132,12 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'Enter No of Entry';
-                  } else if (int.parse(value) >
-                      widget.obj[widget.index].currentEntries!) {
-                    return 'Must be less then Total Raffle Entries (${widget.obj[widget.index].currentEntries!})';
+                  } else if (widget.obj[widget.index].currentEntries != -1) {
+                    int totalEntry = int.parse(value) +
+                        widget.obj[widget.index].initialEntries!;
+                    if (totalEntry > widget.obj[widget.index].currentEntries!) {
+                      return 'Must be less then Total Raffle Entries (${widget.obj[widget.index].currentEntries!})';
+                    }
                   }
                   return null;
                 },

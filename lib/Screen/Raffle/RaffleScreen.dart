@@ -21,6 +21,7 @@ class _HomeScreenState extends State<RaffleScreen> {
   List<RaffleModel> obj = [];
   List prizes = [];
   List persons = [];
+  List winners = [];
 
   bool isData = false;
 
@@ -28,10 +29,16 @@ class _HomeScreenState extends State<RaffleScreen> {
   void initState() {
     super.initState();
     Services.getRaffles(which: 0).then((value) {
+      obj = value[0];
+      prizes = value[1];
+      persons = value[2];
+    });
+
+    Services.getLockWinner().then((value) {
+      print("winner");
+      print(value[3]);
+      winners = value[3];
       setState(() {
-        obj = value[0];
-        prizes = value[1];
-        persons = value[2];
         isData = true;
       });
     });
@@ -86,11 +93,11 @@ class _HomeScreenState extends State<RaffleScreen> {
                     ),
                     ...List.generate(obj.length, (index) {
                       return RaffleCard(
-                        index: index,
-                        obj: obj,
-                        prizes: prizes,
-                        persons: persons,
-                      );
+                          index: index,
+                          obj: obj,
+                          prizes: prizes,
+                          persons: persons,
+                          winner: winners);
                     }),
                   ],
                 )

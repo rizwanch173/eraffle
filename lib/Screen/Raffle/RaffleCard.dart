@@ -1,6 +1,7 @@
 import 'package:eraffle/Models/RaffleModel.dart';
 import 'package:eraffle/Models/person_model.dart';
 import 'package:eraffle/Models/prize_model.dart';
+import 'package:eraffle/Models/winner_model.dart';
 import 'package:eraffle/Screen/Raffle/RaffleDetails.dart';
 import 'package:eraffle/theme/theme.dart';
 import 'package:flutter/material.dart';
@@ -15,11 +16,13 @@ class RaffleCard extends StatefulWidget {
     required this.index,
     required this.prizes,
     required this.persons,
+    required this.winner,
   }) : super(key: key);
 
   final List<RaffleModel> obj;
   final List prizes;
   final List persons;
+  final List winner;
 
   final int index;
 
@@ -31,10 +34,12 @@ class _RaffleCardState extends State<RaffleCard> {
   List<PrizeModel> prizeList = [];
 
   List<PersonModel> personList = [];
+  List<WinnerModel> winnerList = [];
   @override
   void initState() {
     prizeList = widget.prizes[widget.index];
     personList = widget.persons[widget.index];
+    winnerList = widget.winner[widget.index];
     super.initState();
   }
 
@@ -183,6 +188,7 @@ class _RaffleCardState extends State<RaffleCard> {
                                         obj: widget.obj,
                                         personList: personList,
                                         prizeList: prizeList,
+                                        winnerList: winnerList,
                                       )),
                             ).then((value) {
                               setState(() {});

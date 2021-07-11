@@ -40,6 +40,9 @@ class _CreateRaffleScreenState extends State<CreateRaffleScreen> {
   double btnWidth = 0;
   double btnHeight = 0;
   bool isInserted = false;
+  bool isNa = false;
+
+  Color naColor = Colors.grey;
 
   @override
   Widget build(BuildContext context) {
@@ -224,7 +227,7 @@ class _CreateRaffleScreenState extends State<CreateRaffleScreen> {
                   ),
                   child: TextFormField(
                     controller: _entryController,
-                    readOnly: isInserted,
+                    readOnly: isNa,
                     style: TextStyle(
                       fontStyle: FontStyle.normal,
                       fontWeight: FontWeight.normal,
@@ -237,17 +240,37 @@ class _CreateRaffleScreenState extends State<CreateRaffleScreen> {
                       FilteringTextInputFormatter.digitsOnly
                     ],
                     decoration: InputDecoration(
-                      labelText: "Current Entry",
+                      labelText: "Entries available",
                       labelStyle: TextStyle(color: Colors.grey),
-                      hintText: "Enter Current Entry",
+                      hintText: "Enter Entries available",
                       hintStyle: TextStyle(color: Colors.grey),
                       floatingLabelBehavior: FloatingLabelBehavior.always,
                       suffixIcon: Container(
-                        padding: EdgeInsets.symmetric(vertical: 10),
-                        child: SvgPicture.asset(
-                          "assets/Icons/countdown.svg",
-                          height: 5,
-                          width: 5,
+                        padding: EdgeInsets.symmetric(vertical: 5),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              isNa = !isNa;
+                              if (isNa) {
+                                naColor = AppColor.secondary;
+                              } else {
+                                naColor = Colors.grey;
+                              }
+                            });
+                          },
+                          child: Text(
+                            'N/A',
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            primary: naColor,
+                            onSurface: AppColor.primary,
+                            shadowColor: AppColor.primary,
+                            shape: CircleBorder(),
+                            padding: EdgeInsets.all(10),
+                          ),
                         ),
                       ),
                       border: OutlineInputBorder(
@@ -260,10 +283,11 @@ class _CreateRaffleScreenState extends State<CreateRaffleScreen> {
                           EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                     ),
                     validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'Enter Current Entry';
-                      } else if (int.parse(value) < 1) {
-                        return 'At least add 1 Entry';
+                      if (isNa == false) {
+                        if (value!.isEmpty) return 'Enter Entries available';
+                      } else if (isNa == false) {
+                        if (int.parse(value!) < 1)
+                          return 'At least add 1 Entry';
                       }
                       return null;
                     },
@@ -284,9 +308,10 @@ class _CreateRaffleScreenState extends State<CreateRaffleScreen> {
                             _formKey.currentState!.save();
 
                             Services.insertRaffle(
-                                    name: _nameController.text,
-                                    entries: _entryController.text)
-                                .then((value) {
+                              name: _nameController.text,
+                              entries: _entryController.text,
+                              isNa: isNa,
+                            ).then((value) {
                               insertedVal = value;
                               Services.insertRafflePrize(
                                   id: value, prizeList: prizeList);
@@ -371,12 +396,13 @@ class _CreateRaffleScreenState extends State<CreateRaffleScreen> {
                         MaterialPageRoute(
                             builder: (context) => AddPersonScreen(
                                 id: insertedVal,
-                                totalEntries:
-                                    int.parse(_entryController.text))),
+                                totalEntries: isNa
+                                    ? -1
+                                    : int.parse(_entryController.text))),
                       );
                     },
                     child: Text(
-                      'Add Participate',
+                      'Add Participant',
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
