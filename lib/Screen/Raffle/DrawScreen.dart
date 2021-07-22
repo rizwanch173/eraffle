@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:eraffle/Models/RaffleModel.dart';
 import 'package:eraffle/Models/person_model.dart';
 import 'package:eraffle/Models/prize_model.dart';
 import 'package:eraffle/Models/winner_model.dart';
-import 'package:eraffle/Screen/Raffle/RaffleScreen.dart';
 import 'package:eraffle/Services/API.dart';
 import 'package:eraffle/Tabs.dart';
 import 'package:eraffle/theme/CustomWidgets.dart';
@@ -14,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_fortune_wheel/flutter_fortune_wheel.dart';
 import 'package:group_button/group_button.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class DrawScreen extends StatefulWidget {
   const DrawScreen({
@@ -41,16 +41,16 @@ class _DrawScreenState extends State<DrawScreen> {
   int spinCount = 0;
   var selectedPerson;
   List<PersonModel> personList = [];
-  List<PersonModel> perviousList = [];
-  List<String> Prizes = [];
+  List<PersonModel> previousList = [];
+  List<String> prizes = [];
   int winnerIndex = 0;
   var prizeDetail;
   bool isNullPerson = false;
-  String SingleWinner = "";
+  String singleWinner = "";
 
-  List<int> testlist = [];
+  List<int> testList = [];
 
-  List<String> lockprize = [];
+  List<String> lockPrize = [];
   @override
   void dispose() {
     selected.close();
@@ -62,22 +62,22 @@ class _DrawScreenState extends State<DrawScreen> {
     // TODO: implement initState
 
     for (var prize in widget.prizeList) {
-      Prizes.add(prize.prizeDetail!);
+      prizes.add(prize.prizeDetail!);
     }
 
-    for (var prize in Prizes) {
+    for (var prize in prizes) {
       for (var winner in widget.winnerList) {
         if (prize == winner.prizeName) {
-          lockprize.add(prize);
+          lockPrize.add(prize);
         }
       }
     }
     print("prize lock");
-    print(lockprize);
+    print(lockPrize);
 
-    if (lockprize.contains(Prizes[0])) {
+    if (lockPrize.contains(prizes[0])) {
       for (int i = 0; i < widget.winnerList.length; i++) {
-        if (widget.winnerList[i].prizeName == Prizes[0]) {
+        if (widget.winnerList[i].prizeName == prizes[0]) {
           winnerIndex = i;
         }
       }
@@ -90,23 +90,23 @@ class _DrawScreenState extends State<DrawScreen> {
     for (var person in widget.personList) {
       var selectedPrize = person.prizeType!.split(",");
 
-      if (selectedPrize.contains(Prizes[0])) {
+      if (selectedPrize.contains(prizes[0])) {
         personList.add(person);
       }
     }
 
     if (personList.length > 1) {
-      perviousList = List.from(personList);
+      previousList = List.from(personList);
     }
     print("previous");
-    print(perviousList.length);
+    print(previousList.length);
 
     for (int i = 0; i < personList.length; i++) {
-      testlist.addAll(List.filled(personList[i].noOfEntries!, i));
+      testList.addAll(List.filled(personList[i].noOfEntries!, i));
     }
-    testlist.shuffle();
-    print(testlist);
-    prizeDetail = Prizes[0];
+    testList.shuffle();
+    print(testList);
+    prizeDetail = prizes[0];
     super.initState();
   }
 
@@ -128,7 +128,7 @@ class _DrawScreenState extends State<DrawScreen> {
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
-                        if (testlist.length == 0) {
+                        if (testList.length == 0) {
                           final snackBar = SnackBar(
                             content: Text(
                               'All Participant have Zero Entries',
@@ -151,7 +151,7 @@ class _DrawScreenState extends State<DrawScreen> {
                           // and use it to show a SnackBar.
                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         } else {
-                          selectedPerson = Fortune.randomItem(testlist);
+                          selectedPerson = Fortune.randomItem(testList);
                           int index = widget.personList.indexWhere((element) =>
                               element.id == personList[selectedPerson].id);
                           print(index);
@@ -295,14 +295,17 @@ class _DrawScreenState extends State<DrawScreen> {
                             direction: Axis.horizontal,
                             onSelected: (index, isSelected) {
                               print("test");
-                              print(perviousList.length);
+                              setState(() {
+                                isLoc = false;
+                              });
+                              print(previousList.length);
                               personList.clear();
-                              prizeDetail = Prizes[index];
+                              prizeDetail = prizes[index];
 
                               for (var person in widget.personList) {
                                 var selectedPrize =
                                     person.prizeType!.split(",");
-                                if (selectedPrize.contains(Prizes[index])) {
+                                if (selectedPrize.contains(prizes[index])) {
                                   personList.add(person);
                                 }
                               }
@@ -310,9 +313,9 @@ class _DrawScreenState extends State<DrawScreen> {
                               if (personList.length == 0) {
                                 setState(() {
                                   isNullPerson = true;
-                                  SingleWinner = "";
-                                  personList = List.from(perviousList);
-                                  print(perviousList.length);
+                                  singleWinner = "";
+                                  personList = List.from(previousList);
+                                  print(previousList.length);
                                   print(personList.length);
                                 });
                                 final snackBar = SnackBar(
@@ -341,20 +344,34 @@ class _DrawScreenState extends State<DrawScreen> {
                                 if (personList.length < 2) {
                                   setState(() {
                                     isNullPerson = true;
-                                    SingleWinner = personList[0].name!;
+                                    singleWinner = personList[0].name!;
 
-                                    personList = List.from(perviousList);
-                                    print(perviousList.length);
+                                    personList = List.from(previousList);
+                                    print(previousList.length);
                                   });
                                 } else {
-                                  perviousList = List.from(personList);
-                                  testlist.clear();
+                                  if (lockPrize.contains(prizes[index])) {
+                                    for (int i = 0;
+                                        i < widget.winnerList.length;
+                                        i++) {
+                                      if (widget.winnerList[i].prizeName ==
+                                          prizes[index]) {
+                                        winnerIndex = i;
+                                      }
+                                    }
+
+                                    setState(() {
+                                      isLoc = true;
+                                    });
+                                  }
+                                  previousList = List.from(personList);
+                                  testList.clear();
                                   for (int i = 0; i < personList.length; i++) {
-                                    testlist.addAll(List.filled(
+                                    testList.addAll(List.filled(
                                         personList[i].noOfEntries!, i));
                                   }
-                                  testlist.shuffle();
-                                  print(testlist);
+                                  testList.shuffle();
+                                  print(testList);
 
                                   setState(() {
                                     isNullPerson = false;
@@ -363,7 +380,7 @@ class _DrawScreenState extends State<DrawScreen> {
                                 }
                               }
                             },
-                            buttons: Prizes,
+                            buttons: prizes,
                             selectedTextStyle: TextStyle(
                               fontWeight: FontWeight.w900,
                               fontSize: 16,
@@ -774,42 +791,23 @@ class _DrawScreenState extends State<DrawScreen> {
                                             primary: AppColor.primary,
                                           ),
                                           onPressed: () {
-                                            int index = widget.personList
-                                                .indexWhere((element) =>
-                                                    element.id ==
-                                                    personList[selectedPerson]
-                                                        .id);
+                                            // int index = widget.personList
+                                            //     .indexWhere((element) =>
+                                            //         element.id ==
+                                            //         personList[selectedPerson]
+                                            //             .id);
+                                            setState(() {
+                                              isLoc = false;
+                                              lockPrize.remove(prizeDetail);
+                                              widget.winnerList
+                                                  .removeAt(winnerIndex);
+                                            });
 
-                                            Services.insertRaffleHistory(
-                                              raffle_id:
+                                            Services.unlockWinner(
+                                              raffleId:
                                                   widget.obj[widget.index].id,
-                                              person_id:
-                                                  widget.personList[index].id,
                                               prize: prizeDetail,
-                                              current_entries: widget
-                                                  .obj[widget.index]
-                                                  .currentEntries,
                                             );
-
-                                            final snackBar = SnackBar(
-                                              content: Text(
-                                                'Winner has been Locked',
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              backgroundColor: AppColor.primary,
-                                              action: SnackBarAction(
-                                                label: 'ok',
-                                                textColor: Colors.white,
-                                                onPressed: () {
-                                                  // Some code to undo the change.
-                                                },
-                                              ),
-                                            );
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(snackBar);
                                           },
                                           child: Padding(
                                             padding: EdgeInsets.all(0),
@@ -829,6 +827,62 @@ class _DrawScreenState extends State<DrawScreen> {
                                                   ),
                                                   Icon(
                                                     Icons.lock_open,
+                                                    color: Colors.white,
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        constraints: BoxConstraints(
+                                            maxWidth: 250.0, minHeight: 50.0),
+                                        margin: EdgeInsets.all(10),
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            primary: AppColor.primary,
+                                          ),
+                                          onPressed: () {
+                                            // int index = widget.personList
+                                            //     .indexWhere((element) =>
+                                            //         element.id ==
+                                            //         personList[selectedPerson]
+                                            //             .id);
+                                            sendEmail(
+                                                email: "rizwanch173@gmail.com",
+                                                name: widget
+                                                    .winnerList[winnerIndex]
+                                                    .name!,
+                                                prize: prizeDetail,
+                                                dateOfWin: widget
+                                                    .winnerList[winnerIndex]
+                                                    .date!,
+                                                raffleName: widget
+                                                    .obj[widget.index]
+                                                    .eventName,
+                                                dateOfRaffle: widget
+                                                    .obj[widget.index]
+                                                    .createdDate);
+                                          },
+                                          child: Padding(
+                                            padding: EdgeInsets.all(0),
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: <Widget>[
+                                                  Text(
+                                                    'Send Email',
+                                                    style: TextStyle(
+                                                      fontSize: 15,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  Icon(
+                                                    Icons.email_outlined,
                                                     color: Colors.white,
                                                   )
                                                 ],
@@ -872,7 +926,7 @@ class _DrawScreenState extends State<DrawScreen> {
                                         spinCount = 0;
                                       });
 
-                                      print(perviousList.length);
+                                      print(previousList.length);
                                       personList.clear();
 
                                       for (var person in widget.personList) {
@@ -887,9 +941,9 @@ class _DrawScreenState extends State<DrawScreen> {
                                       if (personList.length == 0) {
                                         setState(() {
                                           isNullPerson = true;
-                                          SingleWinner = "";
-                                          personList = List.from(perviousList);
-                                          print(perviousList.length);
+                                          singleWinner = "";
+                                          personList = List.from(previousList);
+                                          print(previousList.length);
                                           print(personList.length);
                                         });
                                         final snackBar = SnackBar(
@@ -918,23 +972,23 @@ class _DrawScreenState extends State<DrawScreen> {
                                         if (personList.length < 2) {
                                           setState(() {
                                             isNullPerson = true;
-                                            SingleWinner = personList[0].name!;
+                                            singleWinner = personList[0].name!;
 
                                             personList =
-                                                List.from(perviousList);
-                                            print(perviousList.length);
+                                                List.from(previousList);
+                                            print(previousList.length);
                                           });
                                         } else {
-                                          perviousList = List.from(personList);
-                                          testlist.clear();
+                                          previousList = List.from(personList);
+                                          testList.clear();
                                           for (int i = 0;
                                               i < personList.length;
                                               i++) {
-                                            testlist.addAll(List.filled(
+                                            testList.addAll(List.filled(
                                                 personList[i].noOfEntries!, i));
                                           }
-                                          testlist.shuffle();
-                                          print(testlist);
+                                          testList.shuffle();
+                                          print(testList);
 
                                           setState(() {
                                             isNullPerson = false;
@@ -1267,6 +1321,25 @@ class _DrawScreenState extends State<DrawScreen> {
                                                     element.id ==
                                                     personList[selectedPerson]
                                                         .id);
+                                            DateTime now = DateTime.now();
+                                            WinnerModel win = new WinnerModel(
+                                              name: personList[selectedPerson]
+                                                  .name,
+                                              prizeName: prizeDetail,
+                                              initialEntries:
+                                                  personList[selectedPerson]
+                                                      .initialEntries,
+                                              noOfEntries:
+                                                  personList[selectedPerson]
+                                                      .noOfEntries,
+                                              lock: 1,
+                                              date: now.toString(),
+                                            );
+
+                                            setState(() {
+                                              widget.winnerList.add(win);
+                                              lockPrize.add(prizeDetail);
+                                            });
 
                                             Services.insertRaffleHistory(
                                               raffle_id:
@@ -1359,7 +1432,7 @@ class _DrawScreenState extends State<DrawScreen> {
                                       spinCount = 0;
                                     });
 
-                                    print(perviousList.length);
+                                    print(previousList.length);
                                     personList.clear();
 
                                     for (var person in widget.personList) {
@@ -1373,9 +1446,9 @@ class _DrawScreenState extends State<DrawScreen> {
                                     if (personList.length == 0) {
                                       setState(() {
                                         isNullPerson = true;
-                                        SingleWinner = "";
-                                        personList = List.from(perviousList);
-                                        print(perviousList.length);
+                                        singleWinner = "";
+                                        personList = List.from(previousList);
+                                        print(previousList.length);
                                         print(personList.length);
                                       });
                                       final snackBar = SnackBar(
@@ -1404,22 +1477,22 @@ class _DrawScreenState extends State<DrawScreen> {
                                       if (personList.length < 2) {
                                         setState(() {
                                           isNullPerson = true;
-                                          SingleWinner = personList[0].name!;
+                                          singleWinner = personList[0].name!;
 
-                                          personList = List.from(perviousList);
-                                          print(perviousList.length);
+                                          personList = List.from(previousList);
+                                          print(previousList.length);
                                         });
                                       } else {
-                                        perviousList = List.from(personList);
-                                        testlist.clear();
+                                        previousList = List.from(personList);
+                                        testList.clear();
                                         for (int i = 0;
                                             i < personList.length;
                                             i++) {
-                                          testlist.addAll(List.filled(
+                                          testList.addAll(List.filled(
                                               personList[i].noOfEntries!, i));
                                         }
-                                        testlist.shuffle();
-                                        print(testlist);
+                                        testList.shuffle();
+                                        print(testList);
 
                                         setState(() {
                                           isNullPerson = false;
@@ -1443,7 +1516,7 @@ class _DrawScreenState extends State<DrawScreen> {
                                   Container(
                                     child: Padding(
                                       padding: const EdgeInsets.all(20.0),
-                                      child: SingleWinner == ""
+                                      child: singleWinner == ""
                                           ? Text(
                                               "This prize has no person enrolled !",
                                               style: TextStyle(
@@ -1454,7 +1527,7 @@ class _DrawScreenState extends State<DrawScreen> {
                                             )
                                           : Text(
                                               "This prize has only " +
-                                                  SingleWinner +
+                                                  singleWinner +
                                                   " enrolled so consider as Winner.",
                                               style: TextStyle(
                                                 color: AppColor.primary,
@@ -1479,4 +1552,64 @@ class _DrawScreenState extends State<DrawScreen> {
       ),
     );
   }
+
+  Future<bool> sendEmail({
+    required email,
+    required name,
+    required prize,
+    required dateOfWin,
+    required raffleName,
+    required dateOfRaffle,
+  }) async {
+    final param = {
+      "email": email,
+      "winer_name": name,
+      "prize": prize,
+      "date_of_Win": dateOfWin,
+      "raffle_name": raffleName,
+      "date_of_raffle": dateOfRaffle,
+    };
+
+    http.Response response =
+        await apiRequest("https://bwsgroupco.com/Webservices/send_mail", param);
+    if (response.statusCode == 200) {
+      final item = json.decode(response.body);
+      print("Sent");
+      final snackBar = SnackBar(
+        content: Text(
+          'Email has been Sent',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: AppColor.primary,
+        action: SnackBarAction(
+          label: 'ok',
+          textColor: Colors.white,
+          onPressed: () {
+            // Some code to undo the change.
+          },
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return true;
+    } else {
+      print("Error");
+      return false;
+    }
+  }
+}
+
+Future<http.Response> apiRequest(String url, Map jsonMap) async {
+  var body = jsonEncode(jsonMap);
+  var response = await http.post(
+    Uri.parse(url),
+    headers: {
+      "Accept": "application/json",
+      "content-type": "application/json",
+    },
+    body: body,
+  );
+  return response;
 }

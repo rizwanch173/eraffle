@@ -23,6 +23,8 @@ dev_dependencies:
   flutter_fortune_wheel: ^1.0.1
   group_button: ^2.3.0
   url_launcher: ^6.0.8
+  http: ^0.13.3
+
 
 flutter:
   uses-material-design: true

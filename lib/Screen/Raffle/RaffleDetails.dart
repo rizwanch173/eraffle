@@ -37,7 +37,8 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
 
   TextEditingController _nameControllerEdit = new TextEditingController();
   TextEditingController _entryControllerEdit = new TextEditingController();
-
+  TextEditingController _prizeValueController = new TextEditingController();
+  TextEditingController _prizeEntryController = new TextEditingController();
   TextEditingController _nameController = new TextEditingController();
   TextEditingController _entryController = new TextEditingController();
   TextEditingController _phoneController = new TextEditingController();
@@ -474,7 +475,7 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                                         padding:
                                             const EdgeInsets.only(right: 15),
                                         child: Text(
-                                          (index + 1).toString(),
+                                          widget.prizeList[index].prizeDetail!,
                                           style: TextStyle(
                                             color: Colors.black,
                                             fontWeight: FontWeight.bold,
@@ -484,8 +485,7 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                                       ),
                                     ),
                                     Text(
-                                      widget.prizeList[index].prizeDetail
-                                          .toString(),
+                                      widget.prizeList[index].value.toString(),
                                       style: TextStyle(
                                         color: Colors.black,
                                         fontWeight: FontWeight.bold,
@@ -539,10 +539,16 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                                     Services.insertSingleRafflePrize(
                                       id: widget.obj[widget.index].id,
                                       prize: _prizeController.text,
+                                      value: _prizeValueController.text,
+                                      costEachEntry: _prizeEntryController.text,
                                     ).then((value) {
                                       prizeModel = new PrizeModel(
                                         id: value,
                                         prizeDetail: _prizeController.text,
+                                        value: int.parse(
+                                            _prizeValueController.text),
+                                        costEachEntry: int.parse(
+                                            _prizeEntryController.text),
                                         raffleId: widget.obj[widget.index].id,
                                       );
                                       widget.prizeList.add(prizeModel!);
@@ -1001,9 +1007,9 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                     fontWeight: FontWeight.normal,
                   ),
                   decoration: InputDecoration(
-                    labelText: "Prize Details",
+                    labelText: "Prize name",
                     labelStyle: TextStyle(color: Colors.grey),
-                    hintText: "Enter Prize Details",
+                    hintText: "Enter Prize name",
                     hintStyle: TextStyle(color: Colors.grey),
                     floatingLabelBehavior: FloatingLabelBehavior.always,
                     suffixIcon: Container(
@@ -1025,7 +1031,111 @@ class _RaffleDetailsScreenState extends State<RaffleDetailsScreen> {
                   ),
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return 'Enter Prize Details';
+                      return 'Enter Prize name';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 15),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: TextFormField(
+                  controller: _prizeValueController,
+                  readOnly: isInserted,
+                  style: TextStyle(
+                    fontStyle: FontStyle.normal,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  keyboardType: TextInputType.numberWithOptions(
+                    decimal: true,
+                    signed: false,
+                  ),
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.allow(
+                        RegExp('^\$|^(0|([1-9][0-9]{0,}))(\\.[0-9]{0,})?\$'))
+                  ],
+                  decoration: InputDecoration(
+                    labelText: "Prize value",
+                    labelStyle: TextStyle(color: Colors.grey),
+                    hintText: "Enter prize value",
+                    hintStyle: TextStyle(color: Colors.grey),
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    suffixIcon: Container(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      child: SvgPicture.asset(
+                        "assets/Icons/dollar.svg",
+                        height: 5,
+                        width: 5,
+                      ),
+                    ),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                        borderSide: BorderSide(color: AppColor.primary)),
+                    focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(25.0)),
+                        borderSide: BorderSide(color: AppColor.primary)),
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                  ),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'add prize value';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 15),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: TextFormField(
+                  controller: _prizeEntryController,
+                  readOnly: isInserted,
+                  style: TextStyle(
+                    fontStyle: FontStyle.normal,
+                    fontWeight: FontWeight.normal,
+                  ),
+                  keyboardType: TextInputType.numberWithOptions(
+                    decimal: true,
+                    signed: false,
+                  ),
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.allow(
+                        RegExp('^\$|^(0|([1-9][0-9]{0,}))(\\.[0-9]{0,})?\$'))
+                  ],
+                  decoration: InputDecoration(
+                    labelText: "Entries price",
+                    labelStyle: TextStyle(color: Colors.grey),
+                    hintText: "Enter price per entry",
+                    hintStyle: TextStyle(color: Colors.grey),
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    suffixIcon: Container(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      child: SvgPicture.asset(
+                        "assets/Icons/dollar.svg",
+                        height: 5,
+                        width: 5,
+                      ),
+                    ),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                        borderSide: BorderSide(color: AppColor.primary)),
+                    focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(25.0)),
+                        borderSide: BorderSide(color: AppColor.primary)),
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                  ),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'add price per entry';
                     }
                     return null;
                   },

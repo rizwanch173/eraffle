@@ -113,7 +113,7 @@ class Services {
           .rawQuery("Select * from Particepent where raffle_id='${raffle.id}'");
 
       var winnerResult = await _db!.rawQuery(
-          "Select p.name,w.prize_name,p.initial_entries,p.no_of_entries,w.date,w.lock from Particepent p JOIN winner w on w.winner_id=p.id and w.raffle_id='${raffle.id}'");
+          "Select p.name,w.prize_name,p.initial_entries,p.no_of_entries,w.date,w.lock from Particepent p JOIN winner w on w.winner_id=p.id and w.raffle_id='${raffle.id}' AND w.lock = 1");
 
       prizeList = result.isNotEmpty
           ? result.map((c) => PrizeModel.fromJson(c)).toList()
@@ -168,24 +168,27 @@ class Services {
     return res;
   }
 
-  static Future<int> insertRafflePrize({id, prizeList}) async {
+  static Future<int> insertRafflePrize({id, prizeList, prizeListValue}) async {
     final db = DataBaseHelper();
     _db = await db.init();
     var res;
-    for (var prize in prizeList) {
+
+    for (int i = 0; i < prizeList.length; i += 1) {
       res = await _db!.rawInsert(
-          "INSERT INTO Prize(prize_detail,raffle_id)VALUES('$prize',$id);");
+          "INSERT INTO Prize(prize_detail ,value,raffle_id)VALUES('${prizeList[i]}','${prizeListValue[i]}',$id);");
     }
+
     return res;
   }
 
-  static Future<int> insertSingleRafflePrize({id, prize}) async {
+  static Future<int> insertSingleRafflePrize(
+      {id, prize, value, costEachEntry}) async {
     final db = DataBaseHelper();
     _db = await db.init();
     var res;
 
     res = await _db!.rawInsert(
-        "INSERT INTO Prize(prize_detail,raffle_id)VALUES('$prize','$id');");
+        "INSERT INTO Prize(prize_detail,value,costEachEntry, raffle_id)VALUES('$prize', '$value', '$costEachEntry' , '$id');");
 
     return res;
   }
@@ -234,6 +237,16 @@ class Services {
     DateTime now = DateTime.now();
     res = await _db!.rawInsert(
         "INSERT INTO winner(raffle_id,winner_id,prize_name,date,current_entries,lock)VALUES('$raffle_id','$person_id','$prize','$now','$current_entries',1);");
+
+    return res;
+  }
+
+  static Future<int> unlockWinner({raffleId, prize}) async {
+    final db = DataBaseHelper();
+    _db = await db.init();
+    var res;
+    res = await _db!.rawUpdate(
+        "UPDATE winner SET  lock = 0  WHERE raffle_id = '$raffleId' AND prize_name = '$prize' ;");
 
     return res;
   }
