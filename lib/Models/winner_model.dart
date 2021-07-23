@@ -5,6 +5,7 @@ class WinnerModel {
   int? noOfEntries;
   String? date;
   int? lock;
+  String? phoneNo;
 
   WinnerModel(
       {this.name,
@@ -12,7 +13,8 @@ class WinnerModel {
       this.initialEntries,
       this.noOfEntries,
       this.lock,
-      this.date});
+      this.date,
+      this.phoneNo});
 
   WinnerModel.fromJson(dynamic json) {
     name = json["name"];
@@ -21,6 +23,7 @@ class WinnerModel {
     noOfEntries = json["no_of_entries"];
     date = json["date"];
     lock = json['lock'];
+    phoneNo=json['phone_no'];
   }
 
   Map<String, dynamic> toJson() {
@@ -31,6 +34,7 @@ class WinnerModel {
     map["no_of_entries"] = noOfEntries;
     map["date"] = date;
     map['lock'] = lock;
+    map['phone_no']=phoneNo;
     return map;
   }
 }

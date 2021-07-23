@@ -42,16 +42,44 @@ class _RaffleDetailsScreenState extends State<HistoryDetailsScreen> {
   List<String> prizeList = [];
   List<String> selectedList = [];
   List<String> prizes = [];
+  List<WinnerModel> sortedWinnerList=[];
+  int profit=0;
 
   @override
   void initState() {
+    print("dgd");
+     DateTime now = DateTime.now();
     for (var prize in widget.prizeList) {
+      
       prizes.add(prize.prizeDetail!);
+     int index = widget.winnerList.indexWhere((element) =>
+                                                    element.prizeName ==prize.prizeDetail);
+     
+     
+     
+
+    if(index==-1)
+    {
+      WinnerModel winobj=new WinnerModel(name: "N/A",prizeName: prize.prizeDetail,noOfEntries: 0,initialEntries: 0,lock: 1,date: "N/A",phoneNo: "N/A");
+      sortedWinnerList.add(winobj);
     }
+
+    if(index!=-1)
+    {
+      profit+=((widget.winnerList[index].initialEntries!*prize.costEachEntry!)-prize.value!);
+      print("test");
+      sortedWinnerList.add(widget.winnerList[index]);
+    }
+   
+    }
+    print(profit);
+    
     selectedList.add(prizes[0]);
 
-    for (var winner in widget.winnerList) {
-      print(winner.name);
+    print(sortedWinnerList.length);
+    for (var winner in sortedWinnerList) {
+      print("dgd");
+      print(winner.prizeName);
     }
 
     super.initState();
@@ -237,8 +265,9 @@ class _RaffleDetailsScreenState extends State<HistoryDetailsScreen> {
                                   ),
                                 ),
                                 Text(
-                                  widget.obj[widget.index].currentEntries!
-                                      .toString(),
+                                  widget.obj[widget.index].currentEntries!<0?"0":
+                                  widget.obj[widget.index].currentEntries!.toString(),
+                
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
@@ -307,50 +336,79 @@ class _RaffleDetailsScreenState extends State<HistoryDetailsScreen> {
                             ),
                           ),
                           Padding(
+                            padding: const EdgeInsets.all(15),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(right: 15),
+                                    child: Text(
+                                      "Raffle Profit",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  profit.toString(),
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: ExpandedSection(
                               child: expandedCardEntry(),
                               expand: editExpanded,
                             ),
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(top: 5),
-                                child: TextButton(
-                                  style: TextButton.styleFrom(
-                                    shape: RoundedRectangleBorder(
-                                      // borderRadius: BorderRadius.circular(30),
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(10.0),
-                                        topRight: Radius.zero,
-                                        bottomLeft: Radius.zero,
-                                        bottomRight: Radius.circular(10.0),
-                                      ),
-                                    ),
-                                    primary: AppColor.primary,
-                                    backgroundColor: AppColor.primary,
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 50, vertical: 15),
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      editExpanded = !editExpanded;
-                                    });
-                                  },
-                                  child: Text(
-                                    editExpanded ? 'Close' : 'Winners',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.end,
+                          //   children: [
+                          //     Padding(
+                          //       padding: const EdgeInsets.only(top: 5),
+                          //       child: TextButton(
+                          //         style: TextButton.styleFrom(
+                          //           shape: RoundedRectangleBorder(
+                          //             // borderRadius: BorderRadius.circular(30),
+                          //             borderRadius: BorderRadius.only(
+                          //               topLeft: Radius.circular(10.0),
+                          //               topRight: Radius.zero,
+                          //               bottomLeft: Radius.zero,
+                          //               bottomRight: Radius.circular(10.0),
+                          //             ),
+                          //           ),
+                          //           primary: AppColor.primary,
+                          //           backgroundColor: AppColor.primary,
+                          //           padding: EdgeInsets.symmetric(
+                          //               horizontal: 50, vertical: 15),
+                          //         ),
+                          //         onPressed: () {
+                          //           setState(() {
+                          //             editExpanded = !editExpanded;
+                          //           });
+                          //         },
+                          //         child: Text(
+                          //           editExpanded ? 'Close' : 'Winners',
+                          //           style: TextStyle(
+                          //             color: Colors.white,
+                          //             fontWeight: FontWeight.bold,
+                          //             fontSize: 18,
+                          //           ),
+                          //         ),
+                          //       ),
+                          //     ),
+                          //   ],
+                          // ),
                         ],
                       ),
                     ],
@@ -388,7 +446,7 @@ class _RaffleDetailsScreenState extends State<HistoryDetailsScreen> {
                               fontSize: 16,
                             )),
                       ),
-                      ...List.generate(widget.prizeList.length, (index) {
+                      ...List.generate(sortedWinnerList.length, (index) {
                         return Padding(
                           padding: const EdgeInsets.only(
                             top: 5,
@@ -400,33 +458,220 @@ class _RaffleDetailsScreenState extends State<HistoryDetailsScreen> {
                             child: Container(
                               child: Padding(
                                 padding: const EdgeInsets.all(15),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                child: Column(
                                   children: [
-                                    Flexible(
-                                      child: Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 15),
-                                        child: Text(
-                                          (index + 1).toString(),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Flexible(
+                                          child: Padding(
+                                            padding:
+                                                const EdgeInsets.only(right: 15),
+                                            child: Text(
+                                              "Prize Name",
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          sortedWinnerList[index].prizeName
+                                              .toString(),
                                           style: TextStyle(
                                             color: Colors.black,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16,
                                           ),
-                                        ),
-                                      ),
+                                        )
+                                      ],
                                     ),
-                                    Text(
-                                      widget.prizeList[index].prizeDetail
-                                          .toString(),
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    )
+                                    SizedBox(height: 10,),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Flexible(
+                                          child: Padding(
+                                            padding:
+                                                const EdgeInsets.only(right: 15),
+                                            child: Text(
+                                              "Prize Value",
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          widget.prizeList[index].value
+                                              .toString(),
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    SizedBox(height: 10,),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Flexible(
+                                          child: Padding(
+                                            padding:
+                                                const EdgeInsets.only(right: 15),
+                                            child: Text(
+                                              "Cost per Entry",
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          widget.prizeList[index].costEachEntry
+                                              .toString(),
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    SizedBox(height: 10,),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Flexible(
+                                          child: Padding(
+                                            padding:
+                                                const EdgeInsets.only(right: 15),
+                                            child: Text(
+                                              "Prize Profit",
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          ((widget.prizeList[index].costEachEntry!*sortedWinnerList[index].initialEntries!)-widget.prizeList[index].value!).toString()
+                                              ,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    SizedBox(height: 10,),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Flexible(
+                                          child: Padding(
+                                            padding:
+                                                const EdgeInsets.only(right: 15),
+                                            child: Text(
+                                              "Winner Name",
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          sortedWinnerList[index].name
+                                              .toString(),
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    SizedBox(height: 10,),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Flexible(
+                                          child: Padding(
+                                            padding:
+                                                const EdgeInsets.only(right: 15),
+                                            child: Text(
+                                              "Winning Date",
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          sortedWinnerList[index].date
+                                              .toString()=="N/A"?"N/A":
+                                              sortedWinnerList[index].date.toString().substring(0,13),
+
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    SizedBox(height: 10,),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Flexible(
+                                          child: Padding(
+                                            padding:
+                                                const EdgeInsets.only(right: 15),
+                                            child: Text(
+                                              "Mobile ",
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          sortedWinnerList[index].phoneNo
+                                              .toString(),
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    
                                   ],
                                 ),
                               ),

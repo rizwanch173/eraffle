@@ -66,13 +66,15 @@ class _DrawScreenState extends State<DrawScreen> {
     for (var prize in widget.prizeList) {
       prizes.add(prize.prizeDetail!);
     }
-    int count = 0;
+      
+    
     for (var prize in prizes) {
+      int count = 0;
       for (var person in widget.personList) {
         var selectedPrize = person.prizeType!.split(",");
         if (selectedPrize.contains(prize)) {
           count += 1;
-          personList.add(person);
+          
         }
       }
       if (count <= 1) {
@@ -85,8 +87,12 @@ class _DrawScreenState extends State<DrawScreen> {
         }
       }
     }
-    print("prize lock");
-    print(lockPrize);
+
+
+  
+    print("prize locked");
+    print(singleLockedPrize);
+    //print(lockPrize);
 
     if (lockPrize.contains(prizes[0])) {
       for (int i = 0; i < widget.winnerList.length; i++) {
@@ -779,7 +785,7 @@ class _DrawScreenState extends State<DrawScreen> {
                                                   Text(
                                                     'Remove Remaining Entries ',
                                                     style: TextStyle(
-                                                      fontSize: 15,
+                                                      fontSize: 13,
                                                       color: Colors.white,
                                                     ),
                                                   ),
@@ -810,6 +816,7 @@ class _DrawScreenState extends State<DrawScreen> {
                                             setState(() {
                                               isLoc = false;
                                               lockPrize.remove(prizeDetail);
+                                               singleLockedPrize.remove(prizeDetail);
                                               widget.winnerList
                                                   .removeAt(winnerIndex);
                                             });
@@ -1287,7 +1294,7 @@ class _DrawScreenState extends State<DrawScreen> {
                                                   Text(
                                                     'Remove Remaining Entries ',
                                                     style: TextStyle(
-                                                      fontSize: 15,
+                                                      fontSize: 13,
                                                       color: Colors.white,
                                                     ),
                                                   ),

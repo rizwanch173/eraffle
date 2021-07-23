@@ -66,7 +66,7 @@ class Services {
           .rawQuery("Select * from Particepent where raffle_id='${raffle.id}'");
 
       var winnerResult = await _db!.rawQuery(
-          "Select p.name,w.prize_name,p.initial_entries,p.no_of_entries,w.date,w.lock from Particepent p JOIN winner w on w.winner_id=p.id and w.lock=1 and w.raffle_id='${raffle.id}'");
+          "Select p.name,p.phone_no,w.prize_name,p.initial_entries,p.no_of_entries,w.date,w.lock from Particepent p JOIN winner w on w.winner_id=p.id and w.lock=1 and w.raffle_id='${raffle.id}'");
 
       prizeList = result.isNotEmpty
           ? result.map((c) => PrizeModel.fromJson(c)).toList()
