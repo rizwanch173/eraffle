@@ -168,14 +168,15 @@ class Services {
     return res;
   }
 
-  static Future<int> insertRafflePrize({id, prizeList, prizeListValue}) async {
+  static Future<int> insertRafflePrize(
+      {id, prizeList, prizeListValue, costEachEntry}) async {
     final db = DataBaseHelper();
     _db = await db.init();
     var res;
 
     for (int i = 0; i < prizeList.length; i += 1) {
       res = await _db!.rawInsert(
-          "INSERT INTO Prize(prize_detail ,value,raffle_id)VALUES('${prizeList[i]}','${prizeListValue[i]}',$id);");
+          "INSERT INTO Prize(prize_detail ,value,costEachEntry, raffle_id)VALUES('${prizeList[i]}','${prizeListValue[i]}','${costEachEntry[i]}',$id);");
     }
 
     return res;

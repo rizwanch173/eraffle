@@ -48,6 +48,8 @@ class _DrawScreenState extends State<DrawScreen> {
   bool isNullPerson = false;
   String singleWinner = "";
 
+  List<String> singleLockedPrize = [];
+
   List<int> testList = [];
 
   List<String> lockPrize = [];
@@ -64,11 +66,22 @@ class _DrawScreenState extends State<DrawScreen> {
     for (var prize in widget.prizeList) {
       prizes.add(prize.prizeDetail!);
     }
-
+    int count = 0;
     for (var prize in prizes) {
+      for (var person in widget.personList) {
+        var selectedPrize = person.prizeType!.split(",");
+        if (selectedPrize.contains(prize)) {
+          count += 1;
+          personList.add(person);
+        }
+      }
+      if (count <= 1) {
+        singleLockedPrize.add(prize);
+      }
       for (var winner in widget.winnerList) {
         if (prize == winner.prizeName) {
           lockPrize.add(prize);
+          singleLockedPrize.add(prize);
         }
       }
     }
@@ -403,8 +416,13 @@ class _DrawScreenState extends State<DrawScreen> {
                               BoxShadow(color: Colors.transparent)
                             ],
                           ),
+                          SizedBox(
+                            height: 10,
+                          ),
                           personList.length > 1
-                              ? Expanded(
+                              ? Container(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.48,
                                   child: FortuneWheel(
                                     selected: selected.stream,
                                     animateFirst: false,
@@ -466,72 +484,81 @@ class _DrawScreenState extends State<DrawScreen> {
                                   ),
                                 )
                               : Container(
-                                  child: Text("No Participant Enrolled"),
+                                  child: Text("No Participant Enrolled."),
                                 ),
-                          Container(
-                            width: fullWidth(context) - 100,
-                            margin: EdgeInsets.only(bottom: 80),
-                            child: TextButton(
-                              style: TextButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)),
-                                primary: AppColor.primary,
-                                backgroundColor: AppColor.secondary,
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 30, vertical: 12),
-                              ),
-                              child: Text(
-                                'Close Raffle',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              onPressed: () {
-                                showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) =>
-                                        new CupertinoAlertDialog(
-                                          title: Text('Confirm Close Raffle'),
-                                          content: Text("it's not reversible"),
-                                          actions: <Widget>[
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.of(
-                                                  context,
-                                                ).pop(false);
-                                              },
-                                              child: Text('No'),
-                                            ),
-                                            TextButton(
-                                              onPressed: () {
-                                                Services.closeRaffle(
-                                                        id: widget
-                                                            .obj[widget.index]
-                                                            .id)
-                                                    .then((value) {
-                                                  Navigator.pushReplacement(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          Tabs(),
-                                                    ),
-                                                  );
-                                                });
+                          singleLockedPrize.length == prizes.length
+                              ? Container(
+                                  width: fullWidth(context) - 100,
+                                  margin: EdgeInsets.only(top: 50),
+                                  child: TextButton(
+                                    style: TextButton.styleFrom(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      primary: AppColor.primary,
+                                      backgroundColor: AppColor.secondary,
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 30, vertical: 12),
+                                    ),
+                                    child: Text(
+                                      'Close Raffle',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) =>
+                                              new CupertinoAlertDialog(
+                                                title: Text(
+                                                    'Confirm Close Raffle'),
+                                                content:
+                                                    Text("it's not reversible"),
+                                                actions: <Widget>[
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.of(
+                                                        context,
+                                                      ).pop(false);
+                                                    },
+                                                    child: Text('No'),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Services.closeRaffle(
+                                                              id: widget
+                                                                  .obj[widget
+                                                                      .index]
+                                                                  .id)
+                                                          .then((value) {
+                                                        Navigator
+                                                            .pushReplacement(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder:
+                                                                (context) =>
+                                                                    Tabs(),
+                                                          ),
+                                                        );
+                                                      });
 
-                                                // Navigator.of(
-                                                //   context,
-                                                // ).pop(true);
-                                              },
-                                              child: Text('Yes'),
-                                              style: TextButton.styleFrom(),
-                                            ),
-                                          ],
-                                        ));
-                              },
-                            ),
-                          ),
+                                                      // Navigator.of(
+                                                      //   context,
+                                                      // ).pop(true);
+                                                    },
+                                                    child: Text('Yes'),
+                                                    style:
+                                                        TextButton.styleFrom(),
+                                                  ),
+                                                ],
+                                              ));
+                                    },
+                                  ),
+                                )
+                              : Container(),
                         ],
                       ),
                     ),
@@ -540,8 +567,8 @@ class _DrawScreenState extends State<DrawScreen> {
               ),
               isLoc
                   ? Positioned(
-                      top: 200,
-                      bottom: 50,
+                      top: MediaQuery.of(context).size.height * 0.34,
+                      bottom: MediaQuery.of(context).size.height * 0.12,
                       child: Padding(
                         padding: const EdgeInsets.only(right: 15, left: 10),
                         child: Container(
@@ -557,7 +584,7 @@ class _DrawScreenState extends State<DrawScreen> {
                                 Positioned.fill(
                                   child: Align(
                                     child: Container(
-                                      alignment: Alignment.centerRight,
+                                      alignment: Alignment.topLeft,
                                       height: 200,
                                       width: 200,
                                       child:
@@ -569,151 +596,135 @@ class _DrawScreenState extends State<DrawScreen> {
                                   padding: const EdgeInsets.all(15.0),
                                   child: Column(
                                     children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Flexible(
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    right: 15),
-                                                child: Text(
-                                                  "Winner:",
-                                                  style: TextStyle(
-                                                    color: AppColor.primary,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 20,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Text(
-                                                widget.winnerList[winnerIndex]
-                                                    .name!,
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                            )
-                                          ],
-                                        ),
+                                      SizedBox(
+                                        height: 8,
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Flexible(
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    right: 15),
-                                                child: Text(
-                                                  "Prize",
-                                                  style: TextStyle(
-                                                    color: AppColor.primary,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 20,
-                                                  ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 15),
+                                              child: Text(
+                                                "Winner:",
+                                                style: TextStyle(
+                                                  color: AppColor.primary,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 20,
                                                 ),
                                               ),
                                             ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Text(
-                                                widget.winnerList[winnerIndex]
-                                                    .prizeName!,
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                            )
-                                          ],
-                                        ),
+                                          ),
+                                          Text(
+                                            widget
+                                                .winnerList[winnerIndex].name!,
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          )
+                                        ],
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Flexible(
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    right: 15),
-                                                child: Text(
-                                                  "Initial Entries",
-                                                  style: TextStyle(
-                                                    color: AppColor.primary,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 20,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Text(
-                                                widget.winnerList[winnerIndex]
-                                                    .initialEntries
-                                                    .toString(),
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                            )
-                                          ],
-                                        ),
+                                      SizedBox(
+                                        height: 8,
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Flexible(
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    right: 15),
-                                                child: Text(
-                                                  "Current Entries",
-                                                  style: TextStyle(
-                                                    color: AppColor.primary,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 20,
-                                                  ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 15),
+                                              child: Text(
+                                                "Prize",
+                                                style: TextStyle(
+                                                  color: AppColor.primary,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 20,
                                                 ),
                                               ),
                                             ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
+                                          ),
+                                          Text(
+                                            widget.winnerList[winnerIndex]
+                                                .prizeName!,
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 8,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 15),
                                               child: Text(
-                                                widget.winnerList[winnerIndex]
-                                                    .noOfEntries
-                                                    .toString(),
+                                                "Initial Entries",
                                                 style: TextStyle(
-                                                  color: Colors.black,
+                                                  color: AppColor.primary,
                                                   fontWeight: FontWeight.bold,
-                                                  fontSize: 16,
+                                                  fontSize: 20,
                                                 ),
                                               ),
-                                            )
-                                          ],
-                                        ),
+                                            ),
+                                          ),
+                                          Text(
+                                            widget.winnerList[winnerIndex]
+                                                .initialEntries
+                                                .toString(),
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 8,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 15),
+                                              child: Text(
+                                                "Current Entries",
+                                                style: TextStyle(
+                                                  color: AppColor.primary,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 20,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            widget.winnerList[winnerIndex]
+                                                .noOfEntries
+                                                .toString(),
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          )
+                                        ],
                                       ),
                                       Container(
                                         constraints: BoxConstraints(
@@ -903,8 +914,8 @@ class _DrawScreenState extends State<DrawScreen> {
                   : Container(),
               spinCount > 0
                   ? Positioned(
-                      top: 200,
-                      bottom: 50,
+                      top: MediaQuery.of(context).size.height * 0.34,
+                      bottom: MediaQuery.of(context).size.height * 0.12,
                       child: Padding(
                         padding: const EdgeInsets.only(right: 15, left: 10),
                         child: Container(
@@ -917,95 +928,95 @@ class _DrawScreenState extends State<DrawScreen> {
                           child: Container(
                             child: Stack(
                               children: [
-                                Positioned(
-                                  right: 0,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        isNullPerson = false;
-                                        spinCount = 0;
-                                      });
-
-                                      print(previousList.length);
-                                      personList.clear();
-
-                                      for (var person in widget.personList) {
-                                        var selectedPrize =
-                                            person.prizeType!.split(",");
-                                        if (selectedPrize
-                                            .contains(prizeDetail)) {
-                                          personList.add(person);
-                                        }
-                                      }
-
-                                      if (personList.length == 0) {
-                                        setState(() {
-                                          isNullPerson = true;
-                                          singleWinner = "";
-                                          personList = List.from(previousList);
-                                          print(previousList.length);
-                                          print(personList.length);
-                                        });
-                                        final snackBar = SnackBar(
-                                          content: Text(
-                                            'No Participant for this Prize!',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          backgroundColor: AppColor.primary,
-                                          action: SnackBarAction(
-                                            label: 'ok',
-                                            textColor: Colors.white,
-                                            onPressed: () {
-                                              // Some code to undo the change.
-                                            },
-                                          ),
-                                        );
-
-                                        // Find the ScaffoldMessenger in the widget tree
-                                        // and use it to show a SnackBar.
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(snackBar);
-                                      } else {
-                                        if (personList.length < 2) {
-                                          setState(() {
-                                            isNullPerson = true;
-                                            singleWinner = personList[0].name!;
-
-                                            personList =
-                                                List.from(previousList);
-                                            print(previousList.length);
-                                          });
-                                        } else {
-                                          previousList = List.from(personList);
-                                          testList.clear();
-                                          for (int i = 0;
-                                              i < personList.length;
-                                              i++) {
-                                            testList.addAll(List.filled(
-                                                personList[i].noOfEntries!, i));
-                                          }
-                                          testList.shuffle();
-                                          print(testList);
-
-                                          setState(() {
-                                            isNullPerson = false;
-                                            spinCount = 0;
-                                          });
-                                        }
-                                      }
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(2.0),
-                                      child: Icon(
-                                        Icons.cancel,
-                                        size: 30,
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                                // Positioned(
+                                //   right: 0,
+                                //   child: GestureDetector(
+                                //     onTap: () {
+                                //       setState(() {
+                                //         isNullPerson = false;
+                                //         spinCount = 0;
+                                //       });
+                                //
+                                //       print(previousList.length);
+                                //       personList.clear();
+                                //
+                                //       for (var person in widget.personList) {
+                                //         var selectedPrize =
+                                //             person.prizeType!.split(",");
+                                //         if (selectedPrize
+                                //             .contains(prizeDetail)) {
+                                //           personList.add(person);
+                                //         }
+                                //       }
+                                //
+                                //       if (personList.length == 0) {
+                                //         setState(() {
+                                //           isNullPerson = true;
+                                //           singleWinner = "";
+                                //           personList = List.from(previousList);
+                                //           print(previousList.length);
+                                //           print(personList.length);
+                                //         });
+                                //         final snackBar = SnackBar(
+                                //           content: Text(
+                                //             'No Participant for this Prize!',
+                                //             style: TextStyle(
+                                //               color: Colors.white,
+                                //               fontWeight: FontWeight.bold,
+                                //             ),
+                                //           ),
+                                //           backgroundColor: AppColor.primary,
+                                //           action: SnackBarAction(
+                                //             label: 'ok',
+                                //             textColor: Colors.white,
+                                //             onPressed: () {
+                                //               // Some code to undo the change.
+                                //             },
+                                //           ),
+                                //         );
+                                //
+                                //         // Find the ScaffoldMessenger in the widget tree
+                                //         // and use it to show a SnackBar.
+                                //         ScaffoldMessenger.of(context)
+                                //             .showSnackBar(snackBar);
+                                //       } else {
+                                //         if (personList.length < 2) {
+                                //           setState(() {
+                                //             isNullPerson = true;
+                                //             singleWinner = personList[0].name!;
+                                //
+                                //             personList =
+                                //                 List.from(previousList);
+                                //             print(previousList.length);
+                                //           });
+                                //         } else {
+                                //           previousList = List.from(personList);
+                                //           testList.clear();
+                                //           for (int i = 0;
+                                //               i < personList.length;
+                                //               i++) {
+                                //             testList.addAll(List.filled(
+                                //                 personList[i].noOfEntries!, i));
+                                //           }
+                                //           testList.shuffle();
+                                //           print(testList);
+                                //
+                                //           setState(() {
+                                //             isNullPerson = false;
+                                //             spinCount = 0;
+                                //           });
+                                //         }
+                                //       }
+                                //     },
+                                //     child: Padding(
+                                //       padding: const EdgeInsets.all(2.0),
+                                //       child: Icon(
+                                //         Icons.cancel,
+                                //         size: 30,
+                                //       ),
+                                //     ),
+                                //   ),
+                                // ),
                                 Positioned.fill(
                                   child: Align(
                                     child: Container(
@@ -1021,150 +1032,133 @@ class _DrawScreenState extends State<DrawScreen> {
                                   padding: const EdgeInsets.all(15.0),
                                   child: Column(
                                     children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Flexible(
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    right: 15),
-                                                child: Text(
-                                                  "Winner:",
-                                                  style: TextStyle(
-                                                    color: AppColor.primary,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 20,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Text(
-                                                personList[selectedPerson]
-                                                    .name!,
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                            )
-                                          ],
-                                        ),
+                                      SizedBox(
+                                        height: 8,
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Flexible(
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    right: 15),
-                                                child: Text(
-                                                  "Prize",
-                                                  style: TextStyle(
-                                                    color: AppColor.primary,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 20,
-                                                  ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 15),
+                                              child: Text(
+                                                "Winner:",
+                                                style: TextStyle(
+                                                  color: AppColor.primary,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 20,
                                                 ),
                                               ),
                                             ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Text(
-                                                prizeDetail,
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                            )
-                                          ],
-                                        ),
+                                          ),
+                                          Text(
+                                            personList[selectedPerson].name!,
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          )
+                                        ],
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Flexible(
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    right: 15),
-                                                child: Text(
-                                                  "Initial Entries",
-                                                  style: TextStyle(
-                                                    color: AppColor.primary,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 20,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Text(
-                                                personList[selectedPerson]
-                                                    .initialEntries!
-                                                    .toString(),
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                            )
-                                          ],
-                                        ),
+                                      SizedBox(
+                                        height: 8,
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Flexible(
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    right: 15),
-                                                child: Text(
-                                                  "Current Entries",
-                                                  style: TextStyle(
-                                                    color: AppColor.primary,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 20,
-                                                  ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 15),
+                                              child: Text(
+                                                "Prize",
+                                                style: TextStyle(
+                                                  color: AppColor.primary,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 20,
                                                 ),
                                               ),
                                             ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
+                                          ),
+                                          Text(
+                                            prizeDetail,
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 8,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 15),
                                               child: Text(
-                                                personList[selectedPerson]
-                                                    .noOfEntries!
-                                                    .toString(),
+                                                "Initial Entries",
                                                 style: TextStyle(
-                                                  color: Colors.black,
+                                                  color: AppColor.primary,
                                                   fontWeight: FontWeight.bold,
-                                                  fontSize: 16,
+                                                  fontSize: 20,
                                                 ),
                                               ),
-                                            )
-                                          ],
-                                        ),
+                                            ),
+                                          ),
+                                          Text(
+                                            personList[selectedPerson]
+                                                .initialEntries!
+                                                .toString(),
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 8,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 15),
+                                              child: Text(
+                                                "Current Entries",
+                                                style: TextStyle(
+                                                  color: AppColor.primary,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 20,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            personList[selectedPerson]
+                                                .noOfEntries!
+                                                .toString(),
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          )
+                                        ],
                                       ),
                                       Container(
                                         constraints: BoxConstraints(
@@ -1339,6 +1333,8 @@ class _DrawScreenState extends State<DrawScreen> {
                                             setState(() {
                                               widget.winnerList.add(win);
                                               lockPrize.add(prizeDetail);
+                                              singleLockedPrize
+                                                  .add(prizeDetail);
                                             });
 
                                             Services.insertRaffleHistory(
@@ -1410,8 +1406,8 @@ class _DrawScreenState extends State<DrawScreen> {
                   : Container(),
               isNullPerson
                   ? Positioned(
-                      top: 200,
-                      bottom: 50,
+                      top: MediaQuery.of(context).size.height * 0.27,
+                      bottom: MediaQuery.of(context).size.height * 0.20,
                       child: Padding(
                         padding: const EdgeInsets.only(right: 10, left: 10),
                         child: Container(
@@ -1423,93 +1419,93 @@ class _DrawScreenState extends State<DrawScreen> {
                           width: MediaQuery.of(context).size.width - 20,
                           child: Stack(
                             children: [
-                              Positioned(
-                                right: 0,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      isNullPerson = false;
-                                      spinCount = 0;
-                                    });
-
-                                    print(previousList.length);
-                                    personList.clear();
-
-                                    for (var person in widget.personList) {
-                                      var selectedPrize =
-                                          person.prizeType!.split(",");
-                                      if (selectedPrize.contains(prizeDetail)) {
-                                        personList.add(person);
-                                      }
-                                    }
-
-                                    if (personList.length == 0) {
-                                      setState(() {
-                                        isNullPerson = true;
-                                        singleWinner = "";
-                                        personList = List.from(previousList);
-                                        print(previousList.length);
-                                        print(personList.length);
-                                      });
-                                      final snackBar = SnackBar(
-                                        content: Text(
-                                          'No Participant for this Prize!',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        backgroundColor: AppColor.primary,
-                                        action: SnackBarAction(
-                                          label: 'ok',
-                                          textColor: Colors.white,
-                                          onPressed: () {
-                                            // Some code to undo the change.
-                                          },
-                                        ),
-                                      );
-
-                                      // Find the ScaffoldMessenger in the widget tree
-                                      // and use it to show a SnackBar.
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(snackBar);
-                                    } else {
-                                      if (personList.length < 2) {
-                                        setState(() {
-                                          isNullPerson = true;
-                                          singleWinner = personList[0].name!;
-
-                                          personList = List.from(previousList);
-                                          print(previousList.length);
-                                        });
-                                      } else {
-                                        previousList = List.from(personList);
-                                        testList.clear();
-                                        for (int i = 0;
-                                            i < personList.length;
-                                            i++) {
-                                          testList.addAll(List.filled(
-                                              personList[i].noOfEntries!, i));
-                                        }
-                                        testList.shuffle();
-                                        print(testList);
-
-                                        setState(() {
-                                          isNullPerson = false;
-                                          spinCount = 0;
-                                        });
-                                      }
-                                    }
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(2.0),
-                                    child: Icon(
-                                      Icons.cancel,
-                                      size: 30,
-                                    ),
-                                  ),
-                                ),
-                              ),
+                              // Positioned(
+                              //   right: 0,
+                              //   child: GestureDetector(
+                              //     onTap: () {
+                              //       setState(() {
+                              //         isNullPerson = false;
+                              //         spinCount = 0;
+                              //       });
+                              //
+                              //       print(previousList.length);
+                              //       personList.clear();
+                              //
+                              //       for (var person in widget.personList) {
+                              //         var selectedPrize =
+                              //             person.prizeType!.split(",");
+                              //         if (selectedPrize.contains(prizeDetail)) {
+                              //           personList.add(person);
+                              //         }
+                              //       }
+                              //
+                              //       if (personList.length == 0) {
+                              //         setState(() {
+                              //           isNullPerson = true;
+                              //           singleWinner = "";
+                              //           personList = List.from(previousList);
+                              //           print(previousList.length);
+                              //           print(personList.length);
+                              //         });
+                              //         final snackBar = SnackBar(
+                              //           content: Text(
+                              //             'No Participant for this Prize!',
+                              //             style: TextStyle(
+                              //               color: Colors.white,
+                              //               fontWeight: FontWeight.bold,
+                              //             ),
+                              //           ),
+                              //           backgroundColor: AppColor.primary,
+                              //           action: SnackBarAction(
+                              //             label: 'ok',
+                              //             textColor: Colors.white,
+                              //             onPressed: () {
+                              //               // Some code to undo the change.
+                              //             },
+                              //           ),
+                              //         );
+                              //
+                              //         // Find the ScaffoldMessenger in the widget tree
+                              //         // and use it to show a SnackBar.
+                              //         ScaffoldMessenger.of(context)
+                              //             .showSnackBar(snackBar);
+                              //       } else {
+                              //         if (personList.length < 2) {
+                              //           setState(() {
+                              //             isNullPerson = true;
+                              //             singleWinner = personList[0].name!;
+                              //
+                              //             personList = List.from(previousList);
+                              //             print(previousList.length);
+                              //           });
+                              //         } else {
+                              //           previousList = List.from(personList);
+                              //           testList.clear();
+                              //           for (int i = 0;
+                              //               i < personList.length;
+                              //               i++) {
+                              //             testList.addAll(List.filled(
+                              //                 personList[i].noOfEntries!, i));
+                              //           }
+                              //           testList.shuffle();
+                              //           print(testList);
+                              //
+                              //           setState(() {
+                              //             isNullPerson = false;
+                              //             spinCount = 0;
+                              //           });
+                              //         }
+                              //       }
+                              //     },
+                              //     child: Padding(
+                              //       padding: const EdgeInsets.all(2.0),
+                              //       child: Icon(
+                              //         Icons.cancel,
+                              //         size: 30,
+                              //       ),
+                              //     ),
+                              //   ),
+                              // ),
                               Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -1518,7 +1514,7 @@ class _DrawScreenState extends State<DrawScreen> {
                                       padding: const EdgeInsets.all(20.0),
                                       child: singleWinner == ""
                                           ? Text(
-                                              "This prize has no person enrolled !",
+                                              "This prize has no person enrolled.",
                                               style: TextStyle(
                                                 color: AppColor.primary,
                                                 fontWeight: FontWeight.bold,
@@ -1526,9 +1522,9 @@ class _DrawScreenState extends State<DrawScreen> {
                                               ),
                                             )
                                           : Text(
-                                              "This prize has only " +
+                                              "This Prize only has " +
                                                   singleWinner +
-                                                  " enrolled so consider as Winner.",
+                                                  " Enrolled.",
                                               style: TextStyle(
                                                 color: AppColor.primary,
                                                 fontWeight: FontWeight.bold,
@@ -1570,29 +1566,30 @@ class _DrawScreenState extends State<DrawScreen> {
       "date_of_raffle": dateOfRaffle,
     };
 
+    final snackBar = SnackBar(
+      content: Text(
+        'Email will receive shortly',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      backgroundColor: AppColor.primary,
+      action: SnackBarAction(
+        label: 'ok',
+        textColor: Colors.white,
+        onPressed: () {
+          // Some code to undo the change.
+        },
+      ),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
     http.Response response =
         await apiRequest("https://bwsgroupco.com/Webservices/send_mail", param);
     if (response.statusCode == 200) {
       final item = json.decode(response.body);
       print("Sent");
-      final snackBar = SnackBar(
-        content: Text(
-          'Email has been Sent',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: AppColor.primary,
-        action: SnackBarAction(
-          label: 'ok',
-          textColor: Colors.white,
-          onPressed: () {
-            // Some code to undo the change.
-          },
-        ),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
       return true;
     } else {
       print("Error");

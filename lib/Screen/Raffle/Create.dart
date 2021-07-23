@@ -19,8 +19,10 @@ class _CreateRaffleScreenState extends State<CreateRaffleScreen> {
   TextEditingController _prizeValueController = new TextEditingController();
   TextEditingController _nameController = new TextEditingController();
   TextEditingController _entryController = new TextEditingController();
+  TextEditingController _prizeEntryController = new TextEditingController();
   List<String> prizeList = [];
   List<String> prizeListValue = [];
+  List<String> prizeListCost = [];
 
   var _formKey = GlobalKey<FormState>();
   int? insertedVal;
@@ -39,6 +41,13 @@ class _CreateRaffleScreenState extends State<CreateRaffleScreen> {
       });
   }
 
+  void addPrizeCost({String? prize}) {
+    if (!prizeListCost.contains(prize))
+      setState(() {
+        prizeListCost.add(prize!);
+      });
+  }
+
   void removePrize({String? prize}) {
     if (prizeList.contains(prize))
       setState(() {
@@ -50,6 +59,13 @@ class _CreateRaffleScreenState extends State<CreateRaffleScreen> {
     if (prizeListValue.contains(prize))
       setState(() {
         prizeListValue.remove(prize);
+      });
+  }
+
+  void removePrizeCost({String? prize}) {
+    if (prizeListCost.contains(prize))
+      setState(() {
+        prizeListCost.remove(prize);
       });
   }
 
@@ -175,6 +191,58 @@ class _CreateRaffleScreenState extends State<CreateRaffleScreen> {
                     ),
                   ],
                 ),
+                Container(
+                  margin: EdgeInsets.symmetric(vertical: 15),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: TextFormField(
+                    controller: _prizeEntryController,
+                    readOnly: isInserted,
+                    style: TextStyle(
+                      fontStyle: FontStyle.normal,
+                      fontWeight: FontWeight.normal,
+                    ),
+                    keyboardType: TextInputType.numberWithOptions(
+                      decimal: true,
+                      signed: false,
+                    ),
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.allow(
+                          RegExp('^\$|^(0|([1-9][0-9]{0,}))(\\.[0-9]{0,})?\$'))
+                    ],
+                    decoration: InputDecoration(
+                      labelText: "Entries price",
+                      labelStyle: TextStyle(color: Colors.grey),
+                      hintText: "Enter price per entry",
+                      hintStyle: TextStyle(color: Colors.grey),
+                      floatingLabelBehavior: FloatingLabelBehavior.always,
+                      suffixIcon: Container(
+                        padding: EdgeInsets.symmetric(vertical: 10),
+                        child: SvgPicture.asset(
+                          "assets/Icons/dollar.svg",
+                          height: 5,
+                          width: 5,
+                        ),
+                      ),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                          borderSide: BorderSide(color: AppColor.primary)),
+                      focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(25.0)),
+                          borderSide: BorderSide(color: AppColor.primary)),
+                      contentPadding:
+                          EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                    ),
+                    validator: (value) {
+                      if (prizeList.length == 0) {
+                        return 'add prize value';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
                 Row(
                   children: [
                     Flexible(
@@ -242,8 +310,10 @@ class _CreateRaffleScreenState extends State<CreateRaffleScreen> {
                               _prizeValueController.text != "") {
                             addPrize(prize: _prizeController.text);
                             addPrizeValue(prize: _prizeValueController.text);
+                            addPrizeCost(prize: _prizeEntryController.text);
                             _prizeController.clear();
                             _prizeValueController.clear();
+                            _prizeEntryController.clear();
                           }
                         }
                       },
@@ -293,6 +363,7 @@ class _CreateRaffleScreenState extends State<CreateRaffleScreen> {
                                 if (!isInserted)
                                   removePrize(prize: prizeList[index]);
                                 removePrizeValue(prize: prizeListValue[index]);
+                                removePrizeCost(prize: prizeListCost[index]);
                               },
                               icon: Icon(
                                 Icons.cancel,
@@ -398,9 +469,11 @@ class _CreateRaffleScreenState extends State<CreateRaffleScreen> {
                             ).then((value) {
                               insertedVal = value;
                               Services.insertRafflePrize(
-                                  id: value,
-                                  prizeList: prizeList,
-                                  prizeListValue: prizeListValue);
+                                id: value,
+                                prizeList: prizeList,
+                                prizeListValue: prizeListValue,
+                                costEachEntry: prizeListCost,
+                              );
                             }).then((value) {
                               setState(() {
                                 isInserted = true;
